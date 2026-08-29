@@ -2,9 +2,10 @@ const express = require('express')
 const router = express.Router()
 
 const { connectToDatabase } = require('../utils/database')
+const { cacheMiddleware } = require('../middleware/cache')
 const { analyzeWorks } = require('../services/ai/riskEngine')
 
-router.get('/risk-analysis', async (req, res, next) => {
+router.get('/risk-analysis', cacheMiddleware(30 * 60), async (req, res, next) => {
   try {
     console.log('\n========== AI RISK ANALYSIS ==========')
 
@@ -120,11 +121,27 @@ router.get('/risk-analysis', async (req, res, next) => {
       })
     }
 
-    // Fetch successful payments
+    const analyzedWorkIds = [
+      ...new Set(
+        allWorks
+          .map(work => work.workId || work.work_id)
+          .filter(workId => workId !== undefined && workId !== null)
+          .map(workId => String(workId))
+      ),
+    ]
+    const analyzedWorkIdValues = [
+      ...analyzedWorkIds,
+      ...analyzedWorkIds.map(workId => Number(workId)).filter(Number.isFinite),
+    ]
+
+    // Fetch only payments for the sampled works instead of scanning all expenditure records.
     const expenditures = await db
       .collection('expenditures')
       .find({
         paymentStatus: 'Payment Success',
+        workId: {
+          $in: analyzedWorkIdValues,
+        },
       })
       .toArray()
 
