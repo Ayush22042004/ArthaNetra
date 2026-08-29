@@ -105,11 +105,25 @@ const allowedOrigins =
         'http://127.0.0.1:5176',
       ]
 
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true)
+    }
+
+    const normalizedOrigins = allowedOrigins.map(item => item.trim()).filter(Boolean)
+
+    if (normalizedOrigins.includes('*') || normalizedOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+
+    return callback(new Error(`CORS origin not allowed: ${origin}`))
+  },
+  credentials: true,
+}
+
 app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  })
+  cors(corsOptions)
 )
 
 // Compression for better performance
