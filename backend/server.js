@@ -112,8 +112,16 @@ const corsOptions = {
     }
 
     const normalizedOrigins = allowedOrigins.map(item => item.trim()).filter(Boolean)
+    const isAllowedByWildcard = normalizedOrigins.some(allowedOrigin => {
+      if (!allowedOrigin.startsWith('*.')) {
+        return false
+      }
 
-    if (normalizedOrigins.includes('*') || normalizedOrigins.includes(origin)) {
+      const domain = allowedOrigin.slice(1)
+      return origin.endsWith(domain)
+    })
+
+    if (normalizedOrigins.includes('*') || normalizedOrigins.includes(origin) || isAllowedByWildcard) {
       return callback(null, true)
     }
 
