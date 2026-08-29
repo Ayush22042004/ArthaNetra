@@ -62,6 +62,7 @@ EMAIL_SERVICE=gmail
 EMAIL_USER=optional_email_account
 EMAIL_APP_PASSWORD=optional_app_password
 EMAIL_FROM_NAME=ArthaNetra
+ENABLE_CONSOLE_LOGS=true
 ```
 
 Weather does not need an API key when using Open-Meteo.

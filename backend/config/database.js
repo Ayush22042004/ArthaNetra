@@ -297,6 +297,7 @@ const connectDB = async () => {
       retries++
 
       if (retries === MAX_RETRIES) {
+        console.error('Database connection failed after maximum retries:', error.message)
         secureLogger.error('Database connection failed after maximum retries', {
           category: 'database',
           type: 'connection_failure',

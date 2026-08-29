@@ -91,6 +91,7 @@ FRONTEND_URL=http://127.0.0.1:5176
 GEMINI_API_KEY=your_gemini_key
 GEMINI_MODEL=gemini-3.6-flash
 PEXELS_API_KEY=optional_pexels_key
+ENABLE_CONSOLE_LOGS=true
 ```
 
 Important frontend variables:

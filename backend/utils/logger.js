@@ -90,8 +90,14 @@ transports.push(
   })
 )
 
-// Console transport (only in development or when explicitly enabled)
-if (isDevelopment || process.env.ENABLE_CONSOLE_LOGS === 'true') {
+// Console transport for local development and hosted platforms like Render.
+// Render only shows stdout/stderr, so production crash details must be emitted there.
+if (
+  isDevelopment ||
+  isProduction ||
+  process.env.RENDER === 'true' ||
+  process.env.ENABLE_CONSOLE_LOGS === 'true'
+) {
   transports.push(
     new winston.transports.Console({
       format: developmentFormat,
