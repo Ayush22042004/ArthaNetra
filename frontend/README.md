@@ -21,7 +21,7 @@ React + Vite + TypeScript frontend for the ArthaNetra MPLADS intelligence platfo
 From the repository root:
 
 ```powershell
-cd E:\clone\empowered-indian
+cd E:\ArthaNetra
 pnpm install
 ```
 

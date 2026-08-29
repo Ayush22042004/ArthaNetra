@@ -23,7 +23,7 @@ Node.js + Express + MongoDB API for the ArthaNetra MPLADS intelligence platform.
 Start MongoDB from the project root:
 
 ```powershell
-cd E:\clone\empowered-indian
+cd E:\ArthaNetra
 docker-compose up -d
 ```
 
