@@ -1,0 +1,297 @@
+/* shadcn Dialog handles overlay and modal container styles */
+
+.payment-modal-body {
+  padding: 24px;
+}
+
+/* Loading and Error States */
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-state .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-state svg {
+  font-size: 2rem;
+  color: #ef4444;
+  margin-bottom: 12px;
+}
+
+/* Work Information */
+.work-info {
+  margin-bottom: 32px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.work-info h4 {
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.work-description {
+  margin: 0 0 16px 0;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.work-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.9rem;
+}
+
+.work-meta span {
+  color: #6b7280;
+}
+
+.work-meta strong {
+  color: #374151;
+}
+
+/* Payment Summary */
+.payment-summary {
+  margin-bottom: 32px;
+}
+
+.payment-summary h4 {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.summary-icon {
+  font-size: 1.5rem;
+  color: #3b82f6;
+}
+
+.summary-icon.success {
+  color: #10b981;
+}
+
+.summary-icon.pending {
+  color: #f59e0b;
+}
+
+.summary-item div {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Payment Timeline */
+.payment-timeline h4 {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.timeline-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.timeline-item {
+  display: flex;
+  border-bottom: 1px solid #f3f4f6;
+  padding: 16px;
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+
+.timeline-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.timeline-date svg {
+  color: #3b82f6;
+}
+
+.timeline-content {
+  flex: 1;
+  margin-left: 20px;
+}
+
+.timeline-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.payment-count {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.payment-amount {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.timeline-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.payment-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.payment-amount-small {
+  font-weight: 500;
+  color: #374151;
+}
+
+.payment-status {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.payment-status.payment-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.payment-status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.timeline-note {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+
+/* Payment Period */
+.payment-period {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  display: flex;
+  gap: 32px;
+}
+
+.period-item {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.period-item strong {
+  color: #374151;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .payment-modal-body {
+    padding: 16px;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timeline-item {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .timeline-date {
+    min-width: auto;
+  }
+
+  .timeline-content {
+    margin-left: 0;
+  }
+
+  .payment-period {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .work-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

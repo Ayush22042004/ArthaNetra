@@ -1,0 +1,256 @@
+.virtualized-list-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.virtualized-list-container.mobile {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+.virtualized-list-scroll {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.virtualized-list-scroll.mobile-optimized {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+}
+
+.virtualized-list-total {
+  position: relative;
+  width: 100%;
+}
+
+.virtualized-list-visible {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+
+.virtualized-list-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.virtualized-list-item.mobile {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Loading state */
+.virtualized-list-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+.virtualized-list-loading .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--spacing-sm);
+}
+
+.virtualized-list-loading p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Empty state */
+.virtualized-list-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+  text-align: center;
+  color: var(--text-secondary);
+  padding: var(--spacing-lg);
+}
+
+.virtualized-list-empty.mobile {
+  padding: 2rem 1rem;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.empty-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.mobile-refresh-btn {
+  padding: 0.75rem 1.5rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-refresh-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.mobile-refresh-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.mobile-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Scrollbar styling */
+.virtualized-list-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.virtualized-list-scroll::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.virtualized-list-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.virtualized-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Pull-to-refresh */
+.pull-to-refresh {
+  position: absolute;
+  top: -80px;
+  left: 0;
+  right: 0;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, transparent 0%, #f8fafc 100%);
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.pull-to-refresh.active {
+  background: linear-gradient(180deg, #f0f9ff 0%, #f8fafc 100%);
+}
+
+.pull-to-refresh.refreshing {
+  background: #f0f9ff;
+}
+
+.refresh-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.refresh-arrow {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.refresh-arrow.up {
+  transform: rotate(0deg);
+  color: #3b82f6;
+}
+
+.refresh-arrow.down {
+  transform: rotate(180deg);
+  color: #9ca3af;
+}
+
+.loading-spinner.small {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+/* Performance optimizations */
+.virtualized-list-item > * {
+  flex: 1;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .virtualized-list-scroll.mobile-optimized {
+    scroll-behavior: auto;
+  }
+
+  .mobile-refresh-btn:active:not(:disabled) {
+    transform: none;
+  }
+
+  .pull-to-refresh,
+  .refresh-arrow {
+    transition: none;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .pull-to-refresh {
+    border-bottom: 2px solid;
+  }
+
+  .mobile-refresh-btn {
+    border: 2px solid;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

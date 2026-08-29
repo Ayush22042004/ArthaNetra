@@ -1,0 +1,46 @@
+.mplads-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mplads-main {
+  flex: 1;
+  padding: clamp(18px, 2.5vw, 34px) 0 42px;
+}
+
+.mplads-container {
+  width: min(1560px, 100%);
+  margin: 0 auto;
+  padding: 0 clamp(14px, 2.4vw, 34px);
+}
+
+.mplads-footer {
+  border-top: 1px solid rgba(216, 226, 235, 0.85);
+  background: linear-gradient(180deg, rgba(247, 250, 252, 0.75), rgba(235, 242, 247, 0.92));
+  color: var(--intel-muted);
+  padding: 38px 0 28px;
+  margin-top: auto;
+}
+
+.mplads-footer .footer-container {
+  width: min(1320px, 100%);
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 34px);
+}
+
+.mplads-footer.site-footer .footer-container p,
+.mplads-footer.site-footer .footer-container a {
+  color: var(--intel-muted);
+  font-size: 0.88rem;
+}
+
+.mplads-footer.site-footer .footer-container a:hover {
+  color: var(--intel-primary);
+}
+
+@media (max-width: 760px) {
+  .mplads-main {
+    padding-top: 16px;
+  }
+}

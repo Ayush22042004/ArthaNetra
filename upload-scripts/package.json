@@ -1,0 +1,38 @@
+{
+  "name": "mplads-api-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Automated MPLADS data sync using API instead of CSV files",
+  "main": "index.js",
+  "scripts": {
+    "start": "node basic-api-uploader.js",
+    "basic": "node basic-api-uploader.js",
+    "test": "node --test test/*.test.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --cache --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [
+    "mplads",
+    "api",
+    "automation",
+    "mongodb",
+    "government",
+    "data-sync"
+  ],
+  "author": "MPLADS Dashboard Team",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "mongodb": "^6.0.0",
+    "dotenv": "^16.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "prettier-config": "workspace:*"
+  },
+  "prettier": "prettier-config"
+}

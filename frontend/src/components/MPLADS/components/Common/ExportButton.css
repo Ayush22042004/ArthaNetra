@@ -1,0 +1,67 @@
+/* Export Dropdown */
+.export-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-arrow {
+  transition: transform 0.2s ease;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.export-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 200px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* Dashboard Controls Layout */
+.dashboard-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.dashboard-search {
+  flex: 1;
+  max-width: 400px;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .dashboard-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-search {
+    max-width: none;
+  }
+
+  .dashboard-actions {
+    justify-content: center;
+  }
+
+  .export-dropdown-menu {
+    right: auto;
+    left: 0;
+  }
+}

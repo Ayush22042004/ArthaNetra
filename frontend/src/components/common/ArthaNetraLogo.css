@@ -1,0 +1,40 @@
+.arthanetra-logo {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  color: #071d3a;
+}
+
+.arthanetra-logo__mark {
+  width: 52px;
+  height: 38px;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 10px 18px rgba(7, 29, 58, 0.16));
+}
+
+.arthanetra-logo__wordmark strong,
+.arthanetra-logo__wordmark em {
+  display: block;
+  line-height: 1.05;
+}
+
+.arthanetra-logo__wordmark strong {
+  color: #071d3a;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.arthanetra-logo__wordmark strong span {
+  color: #16803c;
+}
+
+.arthanetra-logo__wordmark em {
+  margin-top: 4px;
+  color: #617084;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

@@ -1,0 +1,87 @@
+.mailing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.mailing-input-group {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mail-icon {
+  color: #64748b;
+  margin-right: 8px;
+}
+
+.mailing-input-group input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.mailing-submit {
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  display: block;
+}
+
+.mailing-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.mailing-hint {
+  font-size: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+.mailing-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.mailing-success .icon {
+  color: #16a34a;
+  font-size: 20px;
+}
+
+.mailing-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.mailing-inline.info {
+  color: var(--primary-600);
+}
+
+.mailing-inline.error {
+  color: #dc2626;
+}
+
+.mailing-inline .icon {
+  font-size: 16px;
+}

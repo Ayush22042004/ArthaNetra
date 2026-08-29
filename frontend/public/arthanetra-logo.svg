@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 360">
+  <defs>
+    <linearGradient id="saffronGreen" x1="90" y1="220" x2="700" y2="95">
+      <stop offset="0" stop-color="#f97316"/>
+      <stop offset="0.5" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#16803c"/>
+    </linearGradient>
+    <linearGradient id="navy" x1="150" y1="55" x2="660" y2="245">
+      <stop offset="0" stop-color="#061a34"/>
+      <stop offset="1" stop-color="#0f4b7a"/>
+    </linearGradient>
+  </defs>
+  <rect width="820" height="360" rx="28" fill="#ffffff"/>
+  <path d="M110 150C220 20 435 0 620 118c43 27 71 58 91 90-113-71-218-98-328-79-85 15-170 40-273 21Z" fill="url(#navy)"/>
+  <path d="M112 175c128 111 282 126 455 67 62-21 112-52 156-91-99 44-196 68-305 66-98-2-197-19-306-42Z" fill="url(#saffronGreen)"/>
+  <circle cx="410" cy="156" r="68" fill="#ffffff"/>
+  <circle cx="410" cy="156" r="52" fill="url(#navy)"/>
+  <path d="M380 128h68M380 153h64M384 128c31 0 47 11 47 29s-16 29-47 29l47 43" fill="none" stroke="#ffffff" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M198 123h130M175 153h153M217 183h111" stroke="#061a34" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="180" cy="153" r="8" fill="#061a34"/>
+  <circle cx="217" cy="183" r="8" fill="#061a34"/>
+  <path d="M530 223v-70M582 223v-103M634 223V82" stroke="#061a34" stroke-width="24" stroke-linecap="round"/>
+  <path d="M526 139l56-49 53 18 61-76" fill="none" stroke="#061a34" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="526" cy="139" r="16" fill="#061a34"/>
+  <circle cx="582" cy="90" r="16" fill="#061a34"/>
+  <circle cx="635" cy="108" r="16" fill="#061a34"/>
+  <circle cx="696" cy="32" r="16" fill="#061a34"/>
+  <text x="410" y="300" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="62" font-weight="900" letter-spacing="4" fill="#061a34">ARTHA<tspan fill="#16803c">NETRA</tspan></text>
+  <text x="410" y="335" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="8" fill="#061a34">INTELLIGENCE OVER EVERY PUBLIC RUPEE</text>
+</svg>

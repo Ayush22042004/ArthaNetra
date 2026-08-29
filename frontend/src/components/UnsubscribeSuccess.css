@@ -1,0 +1,203 @@
+/* ==========================================================================
+   UNSUBSCRIBE SUCCESS PAGE — Civic Editorial
+   ========================================================================== */
+.unsubscribe-success {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(0 0% 100%);
+  padding: 2rem;
+}
+
+.unsubscribe-container {
+  background: white;
+  border: 1px solid hsl(214.3 31.8% 91.4%);
+  border-radius: 0;
+  padding: 3rem;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.success-icon {
+  width: 72px;
+  height: 72px;
+  background: hsla(142, 76%, 36%, 0.08);
+  border: 1px solid hsla(142, 76%, 36%, 0.2);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  font-size: 2rem;
+  color: hsl(142 76% 36%);
+}
+
+.loading-icon {
+  width: 72px;
+  height: 72px;
+  background: hsla(221.2, 83.2%, 53.3%, 0.08);
+  border: 1px solid hsla(221.2, 83.2%, 53.3%, 0.2);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  font-size: 2rem;
+  color: hsl(221.2 83.2% 53.3%);
+  animation: spin 1s linear infinite;
+}
+
+.error-icon {
+  width: 72px;
+  height: 72px;
+  background: hsla(0, 84.2%, 60.2%, 0.08);
+  border: 1px solid hsla(0, 84.2%, 60.2%, 0.2);
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  font-size: 2rem;
+  color: hsl(0 84.2% 60.2%);
+}
+
+.error-message {
+  color: hsl(0 84.2% 60.2%);
+  font-weight: 500;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.unsubscribe-container h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: hsl(222.2 84% 4.9%);
+  margin-bottom: 1rem;
+}
+
+.email-confirmation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: hsla(221.2, 83.2%, 53.3%, 0.06);
+  border: 1px solid hsla(221.2, 83.2%, 53.3%, 0.12);
+  color: hsl(221.2 83.2% 53.3%);
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  margin-bottom: 2rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.success-content {
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.success-content p {
+  font-family: 'Outfit', sans-serif;
+  color: hsl(215.4 16.3% 46.9%);
+  margin-bottom: 0.75rem;
+  font-size: 0.9375rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  letter-spacing: 0.03em;
+}
+
+.action-buttons .btn-primary {
+  color: white;
+  background: hsl(221.2 83.2% 53.3%);
+}
+
+.action-buttons .btn-primary:hover {
+  background: hsl(221.2 83.2% 43.3%);
+  color: white;
+}
+
+.action-buttons .btn-secondary {
+  color: hsl(222.2 84% 4.9%);
+  background: transparent;
+  border: 1.5px solid hsl(214.3 31.8% 91.4%);
+}
+
+.action-buttons .btn-secondary:hover {
+  border-color: hsl(221.2 83.2% 53.3%);
+  color: hsl(221.2 83.2% 53.3%);
+}
+
+.feedback-section {
+  padding-top: 2rem;
+  border-top: 1px solid hsl(214.3 31.8% 91.4%);
+}
+
+.feedback-text {
+  font-family: 'Outfit', sans-serif;
+  color: hsl(215.4 16.3% 46.9%);
+  font-size: 0.8125rem;
+}
+
+.feedback-text a {
+  color: hsl(221.2 83.2% 53.3%);
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+.feedback-text a:hover {
+  color: hsl(38 92% 50%);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .unsubscribe-success {
+    padding: 1rem;
+  }
+
+  .unsubscribe-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .unsubscribe-container h1 {
+    font-size: 1.5rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-buttons .btn {
+    justify-content: center;
+  }
+}
