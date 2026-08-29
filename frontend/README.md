@@ -1,49 +1,107 @@
-ArthaNetra — Frontend (React + Vite)
+# ArthaNetra Frontend
 
-Overview
-The ArthaNetra frontend is a React (Vite) application that powers the public interface for transparency and accountability features: political/administrative hierarchy mapping, public works and expenditures (MPLADS/MLAADS), analytics, and civic engagement tools.
+React + Vite + TypeScript frontend for the ArthaNetra MPLADS intelligence platform.
 
-Getting Started
+## What It Contains
 
-- Requirements: Node.js 18+ and npm.
-- Install: `npm install`
-- Dev: `npm run dev` (default: http://localhost:5173)
-- Build: `npm run build`
-- Preview: `npm run preview`
+- Public home page and ArthaNetra branding.
+- MPLADS dashboard, projects, states, MPs, compare, reports, and AI risk pages.
+- Leaflet GIS map for constituency-level project and risk visualization.
+- General AI assistant wired to active page context.
+- Formspree-backed feedback and data issue forms.
+- Responsive product UI for dashboard, tables, cards, filters, maps, and reports.
 
-Environment Variables
-Copy `.env.example` to `.env` and adjust values. Common keys:
+## Requirements
 
-- `VITE_API_URL` — Backend API base URL (e.g., http://localhost:8080/api)
-- `VITE_API_URL_DEVELOPMENT`, `VITE_API_URL_PRODUCTION` — Optional overrides
-- `SITEMAP_SITE_URL`, `SITEMAP_API_URL` — Optional sitemap generation overrides
-- `SITEMAP_CURRENT_LOK_SABHA_TERM`, `SITEMAP_PREVIOUS_LOK_SABHA_TERM` — MP detail sitemap term buckets
-- `VITE_GA_TRACKING_ID` — Google Analytics tracking ID
-- `VITE_ENABLE_ANALYTICS`
+- Node.js 20+
+- pnpm 10+
 
-Scripts
+## Setup
 
-- `npm run dev` — Start Vite dev server
-- `npm run build` — Production build
-- `npm run sitemap` — Regenerate `public/sitemap.xml` with public MPLADS routes
-- `npm run preview` — Preview build output
-- `npm run lint` / `npm run lint:fix` — ESLint
-- `npm run format` / `npm run format:check` — Prettier
+From the repository root:
 
-Project Structure
+```powershell
+cd E:\clone\empowered-indian
+pnpm install
+```
 
-- `src/` — React sources and feature modules
-- `public/` — Static assets
-- `vite.config.js` — Vite configuration
-- `eslint.config.js` — ESLint (flat config)
+Start the frontend:
 
-Security and Data
+```powershell
+pnpm --dir frontend dev -- --host 127.0.0.1 --port 5176
+```
 
-- Never commit `.env` files or secrets. Use `.env.example` instead.
-- All data use must comply with applicable laws and terms of service for scraped or aggregated sources.
+Open `http://127.0.0.1:5176`.
 
-License
-AGPL-3.0. See `LICENSE`.
+## Environment Variables
 
-Code of Conduct
-See `CODE_OF_CONDUCT.md` for community expectations.
+Local frontend configuration lives in `frontend/.env`.
+
+```env
+VITE_API_URL=http://127.0.0.1:8080/api
+VITE_API_URL_DEVELOPMENT=http://127.0.0.1:8080/api
+VITE_ENABLE_ANALYTICS=false
+VITE_FORMSPREE_ENDPOINT=https://formspree.io/f/your_feedback_form
+VITE_FORMSPREE_FEEDBACK_ENDPOINT=https://formspree.io/f/your_feedback_form
+VITE_FORMSPREE_DATA_ISSUE_ENDPOINT=https://formspree.io/f/your_data_issue_form
+```
+
+Do not put Gemini, MongoDB, SMTP, JWT, or Pexels secrets in the frontend. `VITE_*` variables are public after build.
+
+Restart Vite after changing `.env`.
+
+## Scripts
+
+```powershell
+pnpm --dir frontend dev
+pnpm --dir frontend build
+pnpm --dir frontend build:dev
+pnpm --dir frontend preview
+pnpm --dir frontend lint
+pnpm --dir frontend test
+pnpm --dir frontend smoke
+pnpm --dir frontend sitemap
+```
+
+## Important Routes
+
+- `/`
+- `/mplads`
+- `/mplads/track-area`
+- `/mplads/map`
+- `/mplads/states`
+- `/mplads/mps`
+- `/mplads/compare`
+- `/mplads/risk-analysis`
+- `/mplads/report`
+- `/mplads/architecture`
+
+## Deployment
+
+For Render Static Site:
+
+```text
+Root Directory: frontend
+Build Command: corepack enable && pnpm install && pnpm build
+Publish Directory: dist
+```
+
+Set production env:
+
+```env
+VITE_API_URL=https://your-backend.onrender.com/api
+VITE_API_URL_PRODUCTION=https://your-backend.onrender.com/api
+SITEMAP_SITE_URL=https://your-frontend.onrender.com
+SITEMAP_API_URL=https://your-backend.onrender.com/api
+VITE_ENABLE_ANALYTICS=false
+```
+
+## Notes
+
+- The map uses Leaflet tiles and API data. If exact latitude/longitude is not present, location is handled by frontend fallback logic and marked as constituency-level context.
+- Reports use Formspree when configured and can fall back to backend feedback APIs where available.
+- Analytics is env-controlled and disabled locally by default.
+
+## License
+
+AGPL-3.0. See the root [LICENSE](../LICENSE).

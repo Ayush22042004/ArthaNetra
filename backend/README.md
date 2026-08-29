@@ -1,83 +1,119 @@
-ArthaNetra — Backend API (Node/Express + MongoDB)
+# ArthaNetra Backend API
 
-Overview
-This service powers the ArthaNetra API, serving data for political/administrative hierarchies, public works and expenditures (MPLADS/MLAADS), analytics, and civic engagement features.
+Node.js + Express + MongoDB API for the ArthaNetra MPLADS intelligence platform.
 
-Stack
+## What It Powers
 
-- Node.js + Express
-- MongoDB / Mongoose
-- Helmet, CORS, rate limiting, sanitizers for security
+- MPLADS dashboard summaries and metadata.
+- Project, MP, state, constituency, payment, and report APIs.
+- AI-assisted risk analysis at `GET /api/ai/risk-analysis`.
+- General AI assistant context endpoints.
+- Weather-aware project signals through Open-Meteo.
+- Optional project image search through Pexels.
+- Feedback and data issue persistence when frontend forms use backend fallback.
 
-Getting Started
+## Requirements
 
-### Option 1: Docker Setup (Recommended)
+- Node.js 18+ minimum
+- pnpm 10+
+- MongoDB through Docker, local install, or Atlas
 
-1. **Start MongoDB using Docker Compose** (from project root)
+## Local Setup
 
-   ```bash
-   docker-compose up -d
-   ```
+Start MongoDB from the project root:
 
-2. **Install dependencies and start**
+```powershell
+cd E:\clone\empowered-indian
+docker-compose up -d
+```
 
-   ```bash
-   cd backend
-   cp .env.example .env
-   npm install
-   npm run dev
-   ```
+Install dependencies and run the API:
 
-   The default `.env.example` is already configured for Docker MongoDB.
+```powershell
+pnpm install
+pnpm --dir backend dev
+```
 
-3. **Access Mongo Express** (optional database UI)
-   - URL: http://localhost:8081
-   - Username: `admin`
-   - Password: `admin`
+The API runs at `http://127.0.0.1:8080`.
 
-### Option 2: MongoDB Atlas or Local Install
+## Environment Variables
 
-- Requirements: Node.js 18+, MongoDB Atlas or local MongoDB
-- Install: `npm install`
-- Dev: `npm run dev` (default: http://localhost:8080)
-- Start: `npm start`
+Copy the template:
 
-Environment Variables
-Copy `.env.example` to `.env` and set values:
+```powershell
+Copy-Item backend\.env.example backend\.env
+```
 
-- `MONGODB_URI` — Connection string (DO NOT COMMIT)
-  - For Docker: `mongodb://admin:adminpassword@localhost:27017/mplads?authSource=admin` (default)
-  - For Atlas: `mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/database_name`
-  - For local: `mongodb://localhost:27017/mplads`
-- `DATABASE_NAME` — Database name
-- `JWT_SECRET` and `JWT_EXPIRES_IN` — Auth token settings
-- `CORS_ORIGINS` — Comma-separated list of allowed origins
-- `EMAIL_SERVICE`, `EMAIL_USER`, `EMAIL_APP_PASSWORD`, `EMAIL_FROM_NAME`
-- `FRONTEND_URL` — For email verification links
-- Performance and security tuning: `ENABLE_RATE_LIMIT`, `DB_*`, `CACHE_TTL_*`
+Key variables:
 
-Scripts
+```env
+PORT=8080
+NODE_ENV=development
+MONGODB_URI=mongodb://admin:adminpassword@localhost:27017/mplads?authSource=admin
+DATABASE_NAME=mplads
+JWT_SECRET=replace_with_a_long_secret
+JWT_EXPIRES_IN=7d
+CORS_ORIGINS=http://127.0.0.1:5176,http://localhost:5176
+FRONTEND_URL=http://127.0.0.1:5176
+GEMINI_API_KEY=your_gemini_key
+GEMINI_MODEL=gemini-3.6-flash
+PEXELS_API_KEY=optional_pexels_key
+EMAIL_SERVICE=gmail
+EMAIL_USER=optional_email_account
+EMAIL_APP_PASSWORD=optional_app_password
+EMAIL_FROM_NAME=ArthaNetra
+```
 
-- `npm run dev` — Start with nodemon
-- `npm start` — Start in production
-- `npm run lint` / `npm run lint:fix` — ESLint (flat config)
-- `npm run create-indexes` — Ensure required DB indexes
-- `npm run analyze-performance` / `npm run db-optimize` — Diagnostics
+Weather does not need an API key when using Open-Meteo.
 
-API
+## Scripts
 
-- Base path: `/api`
-- Health: `GET /health`
-- See routes in `routes/` for available endpoints.
+```powershell
+pnpm --dir backend dev
+pnpm --dir backend start
+pnpm --dir backend lint
+pnpm --dir backend create-indexes
+pnpm --dir backend analyze-performance
+```
 
-Security
+## API Checks
 
-- Never commit `.env` or secrets. Use `.env.example` as a template only.
-- Rotate any credentials previously committed and rewrite history before publishing.
-- Validate inputs and avoid exposing internal error details in production.
+```powershell
+Invoke-WebRequest http://127.0.0.1:8080/api -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:8080/health -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:8080/api/summary/overview -UseBasicParsing
+Invoke-WebRequest http://127.0.0.1:8080/api/ai/risk-analysis -UseBasicParsing
+```
 
-License
-AGPL-3.0. See `LICENSE`.
+## Deployment
 
-Code of Conduct
-See `CODE_OF_CONDUCT.md` for community expectations.
+For Render Web Service:
+
+```text
+Root Directory: backend
+Build Command: corepack enable && pnpm install
+Start Command: pnpm start
+```
+
+Use MongoDB Atlas in production and set:
+
+```env
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/mplads
+DATABASE_NAME=mplads
+CORS_ORIGINS=https://your-frontend.onrender.com
+FRONTEND_URL=https://your-frontend.onrender.com
+JWT_SECRET=your_long_random_secret
+GEMINI_API_KEY=your_gemini_key
+```
+
+## Security
+
+- Never commit `.env` files or real secrets.
+- Keep AI, database, JWT, SMTP, and image provider keys on the backend.
+- Use exact production origins in `CORS_ORIGINS`.
+- Rotate any credential that was ever committed or shared publicly.
+
+## License
+
+AGPL-3.0. See the root [LICENSE](../LICENSE).
