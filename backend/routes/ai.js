@@ -43,12 +43,12 @@ router.get('/risk-analysis', cacheMiddleware(30 * 60), async (req, res, next) =>
     const [completedWorks, recommendedWorks] = await Promise.all([
       db.collection('works_completed')
         .find({})
-        .limit(300)
+        .limit(200)
         .toArray(),
 
       db.collection('works_recommended')
         .find({})
-        .limit(700)
+        .limit(800)
         .toArray(),
     ])
 

@@ -122,7 +122,7 @@ function calculateRisk(work) {
 
   riskScore = Math.min(riskScore, 100)
 
-  if (riskScore >= 70) {
+  if (riskScore >= 65) {
     riskLevel = 'HIGH'
   } 
   else if (riskScore >= 35) {
