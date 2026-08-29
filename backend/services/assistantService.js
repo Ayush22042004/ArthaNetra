@@ -42,11 +42,35 @@ const buildWorkSearchQuery = question => {
 }
 
 const getRiskSnapshot = async db => {
-  const [completedWorks, recommendedWorks, expenditures] = await Promise.all([
-    db.collection('works_completed').find({}).limit(500).toArray(),
-    db.collection('works_recommended').find({}).limit(500).toArray(),
-    db.collection('expenditures').find({ paymentStatus: 'Payment Success' }).toArray(),
+  const [completedWorks, recommendedWorks] = await Promise.all([
+    db.collection('works_completed').find({}).limit(200).toArray(),
+    db.collection('works_recommended').find({}).limit(800).toArray(),
   ])
+
+  const sampledWorkIds = [
+    ...new Set(
+      [...completedWorks, ...recommendedWorks]
+        .map(work => work.workId || work.work_id)
+        .filter(workId => workId !== undefined && workId !== null)
+        .map(workId => String(workId))
+    ),
+  ]
+
+  const sampledWorkIdValues = [
+    ...sampledWorkIds,
+    ...sampledWorkIds.map(workId => Number(workId)).filter(Number.isFinite),
+  ]
+
+  const expenditures = sampledWorkIdValues.length
+    ? await db
+        .collection('expenditures')
+        .find({
+          paymentStatus: 'Payment Success',
+          workId: { $in: sampledWorkIdValues },
+        })
+        .project({ workId: 1, expenditureAmount: 1 })
+        .toArray()
+    : []
 
   const expenditureMap = {}
   expenditures.forEach(exp => {
