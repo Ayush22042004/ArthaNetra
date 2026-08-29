@@ -35,18 +35,18 @@ function calculateRisk(work) {
   // 1. STATUS RISK
   // -------------------------
 
-  if (
-    status.includes('pending') ||
-    status.includes('not started') ||
-    status.includes('recommended')
-  ) {
-    riskScore += 40
+  const isCompleted = status.includes('completed') || status.includes('complete')
+  const isRecommended = status.includes('recommended')
+  const isPending = status.includes('pending') || status.includes('not started')
+  const isInProgress = status.includes('progress') || status.includes('ongoing')
+
+  if (isRecommended) {
+    riskScore += 30
+    reasons.push('Work is recommended and awaiting execution evidence')
+  } else if (isPending) {
+    riskScore += 35
     reasons.push('Work is pending or not yet started')
-  } 
-  else if (
-    status.includes('progress') ||
-    status.includes('ongoing')
-  ) {
+  } else if (isInProgress) {
     riskScore += 25
     reasons.push('Work is still in progress')
   }
@@ -60,9 +60,12 @@ function calculateRisk(work) {
   if (allocated > 0) {
     utilization = (expenditure / allocated) * 100
 
-    if (expenditure === 0) {
-      riskScore += 30
-      reasons.push('No expenditure recorded')
+    if (expenditure === 0 && !isCompleted) {
+      riskScore += isRecommended ? 25 : 30
+      reasons.push('No expenditure recorded against the sanctioned amount')
+    } else if (expenditure === 0 && isCompleted) {
+      riskScore += 15
+      reasons.push('Completion is recorded but payment linkage is unavailable')
     } 
     else if (utilization < 25) {
       riskScore += 25
@@ -76,7 +79,7 @@ function calculateRisk(work) {
     // High spending but incomplete project
     if (
       utilization > 80 &&
-      !status.includes('completed')
+      !isCompleted
     ) {
       riskScore += 20
       reasons.push('High expenditure but project is incomplete')
@@ -99,10 +102,24 @@ function calculateRisk(work) {
 
   let riskLevel = 'LOW'
 
+  const amountIsMaterial = allocated >= 500000
+  const amountIsHighValue = allocated >= 1000000
+  const hasExecutionSignal = expenditure > 0 || utilization > 0 || isInProgress || isCompleted
+
+  if (isRecommended && !hasExecutionSignal && amountIsHighValue) {
+    riskScore += 20
+    reasons.push('High-value work has no execution or payment signal yet')
+  } else if (isRecommended && !hasExecutionSignal && amountIsMaterial) {
+    riskScore += 10
+    reasons.push('Material-value work has no execution or payment signal yet')
+  }
+
+  riskScore = Math.min(riskScore, 100)
+
   if (riskScore >= 70) {
     riskLevel = 'HIGH'
   } 
-  else if (riskScore >= 40) {
+  else if (riskScore >= 35) {
     riskLevel = 'MEDIUM'
   }
 

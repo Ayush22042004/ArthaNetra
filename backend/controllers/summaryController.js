@@ -139,12 +139,21 @@ const getOverview = async (req, res) => {
             $cond: [
               {
                 $or: [
-                  { $eq: ['$totalWorksRecommended', 0] },
-                  { $eq: ['$totalWorksRecommended', null] },
+                  { $eq: [{ $add: ['$totalWorksCompleted', '$totalWorksRecommended'] }, 0] },
                 ],
               },
               0,
-              { $multiply: [{ $divide: ['$totalWorksCompleted', '$totalWorksRecommended'] }, 100] },
+              {
+                $multiply: [
+                  {
+                    $divide: [
+                      '$totalWorksCompleted',
+                      { $add: ['$totalWorksCompleted', '$totalWorksRecommended'] },
+                    ],
+                  },
+                  100,
+                ],
+              },
             ],
           },
         },
@@ -182,13 +191,10 @@ const getOverview = async (req, res) => {
         totalMPs: doc.totalMPs || 0,
         totalWorksCompleted: doc.totalWorksCompleted || 0,
         totalWorksRecommended: doc.totalWorksRecommended || 0,
-        completionRate: doc.completionRate || 0,
+        completionRate: Math.min(doc.completionRate || 0, 100),
         totalTransactions: doc.totalTransactions || 0,
         avgAllocation: doc.avgAllocation || 0,
-        pendingWorks: Math.max(
-          0,
-          (doc.totalWorksRecommended || 0) - (doc.totalWorksCompleted || 0)
-        ),
+        pendingWorks: doc.totalWorksRecommended || 0,
         paymentGap: doc.paymentGap || 0,
         completedWorksValue: doc.totalCompletedWorksValue || 0,
         inProgressPayments: doc.totalInProgressPayments || 0,

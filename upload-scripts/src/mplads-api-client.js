@@ -553,7 +553,7 @@ class MPLADSApiClient {
 
     for (const dataType of dataTypes) {
       try {
-        results[dataType] = await this.fetchData(house, dataType, lsTerm)
+        results[dataType] = await this.fetchDataWithRetry(house, dataType, lsTerm)
         // Add small delay to avoid overwhelming the API
         await new Promise(resolve => setTimeout(resolve, 1000))
       } catch (error) {
@@ -563,6 +563,28 @@ class MPLADSApiClient {
     }
 
     return results
+  }
+
+  async fetchDataWithRetry(house, dataType, lsTerm = '18', maxAttempts = 3) {
+    let lastError
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await this.fetchData(house, dataType, lsTerm)
+      } catch (error) {
+        lastError = error
+        const delay = Math.min(3000 * attempt, 10000)
+        console.warn(
+          `Retry ${attempt}/${maxAttempts} failed for ${house} ${dataType}: ${error.message}`
+        )
+
+        if (attempt < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, delay))
+        }
+      }
+    }
+
+    throw lastError
   }
 
   /**
