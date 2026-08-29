@@ -64,16 +64,22 @@ function calculateRisk(work) {
       riskScore += isRecommended ? 25 : 30
       reasons.push('No expenditure recorded against the sanctioned amount')
     } else if (expenditure === 0 && isCompleted) {
-      riskScore += 15
+      riskScore += 35
       reasons.push('Completion is recorded but payment linkage is unavailable')
     } 
     else if (utilization < 25) {
-      riskScore += 25
-      reasons.push('Very low fund utilization')
+      riskScore += isCompleted ? 35 : 25
+      reasons.push(
+        isCompleted
+          ? 'Completed work has very low linked fund utilization'
+          : 'Very low fund utilization'
+      )
     } 
     else if (utilization < 50) {
-      riskScore += 15
-      reasons.push('Low fund utilization')
+      riskScore += isCompleted ? 25 : 15
+      reasons.push(
+        isCompleted ? 'Completed work has low linked fund utilization' : 'Low fund utilization'
+      )
     }
 
     // High spending but incomplete project
@@ -103,7 +109,7 @@ function calculateRisk(work) {
   let riskLevel = 'LOW'
 
   const amountIsMaterial = allocated >= 500000
-  const amountIsHighValue = allocated >= 1000000
+  const amountIsHighValue = allocated >= 750000
   const hasExecutionSignal = expenditure > 0 || utilization > 0 || isInProgress || isCompleted
 
   if (isRecommended && !hasExecutionSignal && amountIsHighValue) {

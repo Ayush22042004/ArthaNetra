@@ -585,10 +585,34 @@ const selectVisibleProjects = (works: MapProject[]) => {
     .filter(project => project.riskLevel === 'Low')
     .sort((a, b) => b.funds - a.funds)
 
-  const lowSelection = takeWithPlaceLimit(lowWorks, 170, 1)
-  const riskSelection = takeWithPlaceLimit(riskWorks, 230, 10)
+  const targetTotal = 400
+  const targetLow = 80
+  const targetRisk = targetTotal - targetLow
 
-  return [...lowSelection, ...riskSelection]
+  const riskSelection = takeWithPlaceLimit(riskWorks, targetRisk, 12)
+  const lowSelection = takeWithPlaceLimit(lowWorks, targetLow, 1)
+  const selectedIds = new Set([...riskSelection, ...lowSelection].map(project => project.id))
+  const remainingSlots = targetTotal - riskSelection.length - lowSelection.length
+
+  if (remainingSlots > 0) {
+    const extraRisk = takeWithPlaceLimit(
+      riskWorks.filter(project => !selectedIds.has(project.id)),
+      remainingSlots,
+      20,
+    )
+
+    extraRisk.forEach(project => selectedIds.add(project.id))
+
+    const extraLow = takeWithPlaceLimit(
+      lowWorks.filter(project => !selectedIds.has(project.id)),
+      Math.max(0, remainingSlots - extraRisk.length),
+      2,
+    )
+
+    return [...riskSelection, ...extraRisk, ...lowSelection, ...extraLow].slice(0, targetTotal)
+  }
+
+  return [...riskSelection, ...lowSelection].slice(0, targetTotal)
 }
 
 const buildDensityRows = (works: MapProject[]): RiskDensityGroup[] => {
