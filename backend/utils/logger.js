@@ -174,15 +174,28 @@ const logSanitizers = {
     ]
 
     const sanitized = { ...obj }
+    const seenObjects = new WeakSet()
 
-    const sanitizeRecursive = object => {
+    const sanitizeRecursive = (object, depth = 0) => {
+      if (!object || typeof object !== 'object') return
+
+      if (seenObjects.has(object)) {
+        return
+      }
+
+      seenObjects.add(object)
+
+      if (depth > 8) {
+        return
+      }
+
       for (const [key, value] of Object.entries(object)) {
         const lowerKey = key.toLowerCase()
 
         if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
           object[key] = '[REDACTED]'
         } else if (value && typeof value === 'object' && !Array.isArray(value)) {
-          sanitizeRecursive(value)
+          sanitizeRecursive(value, depth + 1)
         }
       }
     }
