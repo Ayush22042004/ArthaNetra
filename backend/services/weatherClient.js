@@ -149,7 +149,7 @@ const fetchFallbackWeather = async ({ latitude, longitude, label, statusCode }) 
       label,
       primaryStatusCode: statusCode,
     })
-  } catch (error) {
+  } catch {
     return buildFallbackWeatherSignal({ latitude, longitude, label, statusCode })
   }
 }
@@ -187,7 +187,7 @@ const fetchWeatherForecast = async ({ lat, lng, label }) => {
   let response
   try {
     response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`)
-  } catch (error) {
+  } catch {
     const fallback = await fetchFallbackWeather({ latitude, longitude, label })
     weatherCache.set(key, {
       cachedAt: Date.now(),

@@ -635,6 +635,28 @@ const getVerificationStatus = score => {
   return 'SUSPICIOUS'
 }
 
+const getStrictVerificationStatus = (score, checks) => {
+  const baseStatus = getVerificationStatus(score)
+
+  if (
+    checks.geoVerification?.status === 'LOCATION_MISMATCH' ||
+    checks.imageVerification?.status === 'SUSPICIOUS' ||
+    checks.duplicateCheck?.duplicateDetected
+  ) {
+    return 'SUSPICIOUS'
+  }
+
+  if (
+    checks.imageVerification?.status !== 'PROJECT_MATCH' ||
+    checks.geoVerification?.status !== 'VERIFIED' ||
+    checks.progressVerification?.status !== 'PLAUSIBLE'
+  ) {
+    return baseStatus === 'SUSPICIOUS' ? 'SUSPICIOUS' : 'REVIEW_REQUIRED'
+  }
+
+  return baseStatus
+}
+
 const verifyGeo = (project, body) => {
   const hasSubmittedCoordinates =
     body.latitude !== undefined &&
@@ -687,25 +709,132 @@ const verifyGeo = (project, body) => {
   }
 }
 
-const verifyImage = (project, photoUrl = '') => {
-  const text = `${photoUrl} ${project.title} ${project.category}`.toLowerCase()
-  const categoryKeywords = {
-    roads: ['road', 'asphalt', 'paving', 'street', 'highway', 'construction'],
-    drainage: ['drain', 'pipe', 'storm', 'water', 'construction'],
-    education: ['school', 'college', 'classroom', 'building', 'construction'],
-    'water supply': ['water', 'pipe', 'kiosk', 'pump', 'tank'],
-    'public buildings': ['building', 'hall', 'community', 'construction'],
+const knownSampleCategoryFor = photoUrl => {
+  for (const [category, urls] of Object.entries(sampleImages)) {
+    if ((urls || []).includes(photoUrl)) return category
   }
-  const keywords = categoryKeywords[String(project.category || '').toLowerCase()] || [
+  return null
+}
+
+const verifyImage = (project, photoUrl = '', mediaType = 'url', mediaName = '') => {
+  const text = `${photoUrl} ${mediaName}`.toLowerCase()
+  const knownSampleCategory = knownSampleCategoryFor(photoUrl)
+  const expectedCategory = String(project.category || '').toLowerCase()
+  const disallowedEvidenceWords = [
+    'bedroom',
+    'selfie',
+    'portrait',
+    'office',
+    'screenshot',
+    'logo',
+    'meme',
+    'food',
+    'restaurant',
+    'invoice',
+    'document',
+    'certificate',
+    'random',
+  ]
+  const categoryKeywords = {
+    roads: [
+      'road',
+      'asphalt',
+      'paving',
+      'street',
+      'highway',
+      'bridge',
+      'culvert',
+      'resurfacing',
+      'paver',
+      'excavation',
+      'machinery',
+      'concrete',
+    ],
+    drainage: ['drain', 'drainage', 'pipe', 'storm', 'sewer', 'nala', 'trench', 'excavation'],
+    education: ['school', 'college', 'classroom', 'education', 'lab', 'campus', 'building'],
+    'water supply': ['water', 'pipeline', 'pipe', 'kiosk', 'pump', 'tank', 'well', 'supply'],
+    'public buildings': ['building', 'hall', 'community', 'anganwadi', 'centre', 'center', 'roof'],
+  }
+  const keywords = categoryKeywords[expectedCategory] || [
     'construction',
     'site',
     'work',
+    'civil',
+    'infrastructure',
   ]
+
+  if (!photoUrl) {
+    return {
+      status: 'SUSPICIOUS',
+      score: 20,
+      detectedWorkType: 'No evidence media',
+      detectedStage: 'Unable to assess',
+      confidence: 20,
+      summary: 'No image or media evidence was submitted.',
+      issues: ['Evidence media is missing'],
+    }
+  }
+
+  if (disallowedEvidenceWords.some(word => text.includes(word))) {
+    return {
+      status: 'SUSPICIOUS',
+      score: 25,
+      detectedWorkType: 'Unrelated evidence pattern',
+      detectedStage: 'Manual review required',
+      confidence: 25,
+      summary: 'Evidence appears unrelated to public infrastructure work and requires review.',
+      issues: ['Unrelated image keyword detected'],
+    }
+  }
+
+  if (mediaType === 'video') {
+    return {
+      status: 'REVIEW_REQUIRED',
+      score: 58,
+      detectedWorkType: project.category,
+      detectedStage: 'Video evidence requires manual frame review',
+      confidence: 58,
+      summary: 'Video evidence is attached, but automated image matching is not applied to video frames.',
+      issues: ['Video frame analysis pending'],
+    }
+  }
+
+  if (String(photoUrl).startsWith('data:image')) {
+    return {
+      status: 'REVIEW_REQUIRED',
+      score: 62,
+      detectedWorkType: project.category,
+      detectedStage: 'Uploaded image requires visual review',
+      confidence: 62,
+      summary:
+        'Uploaded image evidence is present, but category match cannot be confirmed without multimodal analysis.',
+      issues: ['Strict visual category match unavailable for raw uploaded image'],
+    }
+  }
+
+  if (knownSampleCategory && knownSampleCategory.toLowerCase() === expectedCategory) {
+    return {
+      status: 'PROJECT_MATCH',
+      score: 88,
+      detectedWorkType: knownSampleCategory,
+      detectedStage:
+        project.progressPercent > 70
+          ? 'Finishing and closure stage'
+          : project.progressPercent > 35
+            ? 'Execution stage visible'
+            : 'Early work stage',
+      confidence: 88,
+      summary: 'Evidence media matches the expected work category.',
+      issues: [],
+    }
+  }
+
   const matches = keywords.filter(keyword => text.includes(keyword)).length
-  const score = clamp(58 + matches * 11 + (photoUrl ? 12 : 0))
+  const score = matches >= 2 ? 84 : matches === 1 ? 66 : 42
+  const status = matches >= 2 ? 'PROJECT_MATCH' : matches === 1 ? 'REVIEW_REQUIRED' : 'SUSPICIOUS'
 
   return {
-    status: score >= 75 ? 'PROJECT_MATCH' : 'REVIEW_REQUIRED',
+    status,
     score,
     detectedWorkType: project.category,
     detectedStage:
@@ -716,10 +845,17 @@ const verifyImage = (project, photoUrl = '') => {
           : 'Early work stage',
     confidence: score,
     summary:
-      score >= 75
-        ? 'Evidence context broadly matches the assigned work type.'
-        : 'Evidence should be reviewed because the project context is weak.',
-    issues: score >= 75 ? [] : ['Low category match confidence'],
+      status === 'PROJECT_MATCH'
+        ? 'Evidence media strongly matches the assigned work type.'
+        : status === 'REVIEW_REQUIRED'
+          ? 'Evidence has only a partial category signal and needs manual review.'
+          : 'Evidence does not contain a strong enough project-category signal.',
+    issues:
+      status === 'PROJECT_MATCH'
+        ? []
+        : status === 'REVIEW_REQUIRED'
+          ? ['Only one category keyword matched']
+          : ['No strong category match found'],
   }
 }
 
@@ -1412,7 +1548,7 @@ router.post('/projects/:projectId/updates', async (req, res, next) => {
       .collection('work_updates')
       .findOne({ projectId: project.projectId, evidenceFingerprint: fingerprint })
     const geoVerification = verifyGeo(project, body)
-    const imageVerification = verifyImage(project, photoUrl)
+    const imageVerification = verifyImage(project, photoUrl, mediaType, mediaName)
     const progressVerification = verifyProgress(project, progressPercent)
     const duplicateCheck = duplicateMatch
       ? {
@@ -1438,7 +1574,12 @@ router.post('/projects/:projectId/updates', async (req, res, next) => {
         duplicateCheck.score * verificationWeights.duplicate +
         progressVerification.score * verificationWeights.progress
     )
-    const verificationStatus = getVerificationStatus(overallVerificationScore)
+    const verificationStatus = getStrictVerificationStatus(overallVerificationScore, {
+      geoVerification,
+      imageVerification,
+      duplicateCheck,
+      progressVerification,
+    })
     const now = new Date()
     const update = {
       updateId: `upd-${now.getTime()}-${crypto.randomBytes(3).toString('hex')}`,
