@@ -49,7 +49,10 @@ const publicContractorSources = [
 
 const ContractorLeaderboard = () => {
   const [contractors, setContractors] = useState<Contractor[]>([])
+  const [filterOptions, setFilterOptions] = useState<Contractor[]>([])
   const [loading, setLoading] = useState(true)
+  const [filtersAppliedAt, setFiltersAppliedAt] = useState('')
+  const [appliedFilters, setAppliedFilters] = useState({ district: '', specialization: '' })
   const [error, setError] = useState('')
   const [district, setDistrict] = useState('')
   const [specialization, setSpecialization] = useState('')
@@ -59,23 +62,28 @@ const ContractorLeaderboard = () => {
   const [selectedProjectId, setSelectedProjectId] = useState('field-road-ward-5')
   const [shortlist, setShortlist] = useState<ContractorShortlistItem[]>([])
 
-  const loadLeaderboard = async () => {
+  const loadLeaderboard = async (nextFilters = { district, specialization }) => {
     try {
       setError('')
       setLoading(true)
       const [response, monitoringResponse, mapResponse, coverageResponse] = await Promise.all([
         contractorsAPI.getLeaderboard({
-          district: district || undefined,
-          specialization: specialization || undefined,
+          district: nextFilters.district || undefined,
+          specialization: nextFilters.specialization || undefined,
         }),
         contractorsAPI.getFieldMonitoring(),
         contractorsAPI.getMapProjects(),
         contractorsAPI.getSourceCoverage(),
       ])
       setContractors(response.data || [])
+      if (!nextFilters.district && !nextFilters.specialization) {
+        setFilterOptions(response.data || [])
+      }
       setMonitoring(monitoringResponse.data)
       setMapFeed(mapResponse.data)
       setCoverage(coverageResponse.data)
+      setAppliedFilters(nextFilters)
+      setFiltersAppliedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
       if (!selectedProjectId && mapResponse.data?.projects?.[0]) {
         setSelectedProjectId(mapResponse.data.projects[0].projectId)
       }
@@ -109,12 +117,27 @@ const ContractorLeaderboard = () => {
   const mapProjects = mapFeed?.projects || []
   const selectedProject = mapProjects.find((project: any) => project.projectId === selectedProjectId)
   const filters = useMemo(() => {
-    const districts = Array.from(new Set(contractors.map(contractor => contractor.district))).sort()
+    const source = filterOptions.length ? filterOptions : contractors
+    const districts = Array.from(new Set(source.map(contractor => contractor.district))).sort()
     const specializations = Array.from(
-      new Set(contractors.flatMap(contractor => contractor.specializations || []))
+      new Set(source.flatMap(contractor => contractor.specializations || []))
     ).sort()
     return { districts, specializations }
-  }, [contractors])
+  }, [contractors, filterOptions])
+
+  const hasActiveDraftFilters = Boolean(district || specialization)
+  const hasPendingFilterChanges =
+    district !== appliedFilters.district || specialization !== appliedFilters.specialization
+
+  const handleApplyFilters = () => {
+    loadLeaderboard({ district, specialization })
+  }
+
+  const handleClearFilters = () => {
+    setDistrict('')
+    setSpecialization('')
+    loadLeaderboard({ district: '', specialization: '' })
+  }
 
   return (
     <main className="leaderboard-page">
@@ -136,27 +159,46 @@ const ContractorLeaderboard = () => {
       </section>
 
       <section className="leaderboard-toolbar">
-        <div>
+        <div className="leaderboard-filter-controls">
           <FiFilter />
-          <select value={district} onChange={event => setDistrict(event.target.value)}>
+          <label>
+            District
+            <select value={district} onChange={event => setDistrict(event.target.value)}>
             <option value="">All districts</option>
             {filters.districts.map(item => (
               <option key={item} value={item}>{item}</option>
             ))}
-          </select>
-          <select value={specialization} onChange={event => setSpecialization(event.target.value)}>
+            </select>
+          </label>
+          <label>
+            Specialization
+            <select value={specialization} onChange={event => setSpecialization(event.target.value)}>
             <option value="">All specializations</option>
             {filters.specializations.map(item => (
               <option key={item} value={item}>{item}</option>
             ))}
-          </select>
+            </select>
+          </label>
         </div>
         <div className="leaderboard-actions">
           <Link to="/mplads/contractor-login">Contractor login</Link>
-          <button type="button" onClick={loadLeaderboard}>
-            <FiRefreshCw /> Apply
+          {hasActiveDraftFilters && (
+            <button type="button" className="leaderboard-clear-btn" onClick={handleClearFilters}>
+              Clear
+            </button>
+          )}
+          <button type="button" onClick={handleApplyFilters} disabled={loading}>
+            <FiRefreshCw className={loading ? 'is-spinning' : ''} />{' '}
+            {loading ? 'Applying' : 'Apply'}
           </button>
         </div>
+        <p className="leaderboard-filter-status" aria-live="polite">
+          Showing {contractors.length} contractor{contractors.length === 1 ? '' : 's'}
+          {appliedFilters.district ? ` in ${appliedFilters.district}` : ''}
+          {appliedFilters.specialization ? ` for ${appliedFilters.specialization}` : ''}
+          {filtersAppliedAt ? ` - updated ${filtersAppliedAt}` : ''}
+          {hasPendingFilterChanges ? ' - filter changes pending' : ''}
+        </p>
       </section>
 
       {error && <p className="leaderboard-error">{error}</p>}
