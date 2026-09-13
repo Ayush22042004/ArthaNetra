@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import {
   FiAlertTriangle,
+  FiAward,
   FiBarChart2,
   FiChevronDown,
   FiGrid,
@@ -26,6 +27,7 @@ const navItems = [
   { title: 'States', path: '/mplads/states', icon: <FiMapPin /> },
   { title: 'MPs', path: '/mplads/mps', icon: <FiUsers /> },
   { title: 'AI Risk', path: '/mplads/risk-analysis', icon: <FiAlertTriangle /> },
+  { title: 'Contractors', path: '/mplads/contractors', icon: <FiAward /> },
   { title: 'Compare', path: '/mplads/compare', icon: <FiBarChart2 /> },
   { title: 'Reports', path: '/mplads/report', icon: <FiMessageSquare /> },
 ]
@@ -39,6 +41,9 @@ const routeLabels: Record<string, string> = {
   '/mplads/states': 'States',
   '/mplads/mps': 'MPs',
   '/mplads/risk-analysis': 'AI Risk',
+  '/mplads/contractors': 'Contractors',
+  '/mplads/contractor-portal': 'Field Portal',
+  '/mplads/contractor-login': 'Contractor Login',
   '/mplads/compare': 'Compare',
   '/mplads/report': 'Reports',
   '/mplads/architecture': 'AI Core',

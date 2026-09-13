@@ -11,6 +11,7 @@ const MailingListForm = () => {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [deliverySkipped, setDeliverySkipped] = useState(false)
   const [alreadySubscribed, setAlreadySubscribed] = useState(false)
   const [inlineError, setInlineError] = useState('')
 
@@ -21,9 +22,11 @@ const MailingListForm = () => {
     try {
       setLoading(true)
       setAlreadySubscribed(false)
+      setDeliverySkipped(false)
       setInlineError('')
       const res = await subscribeToMailingList(email, { skipErrorToast: true })
       toast.success(res?.message || 'Verification email sent')
+      setDeliverySkipped(Boolean(res?.emailDelivery?.skipped))
       setSubmitted(true)
     } catch (err) {
       const status = err?.response?.status
@@ -44,8 +47,12 @@ const MailingListForm = () => {
     return (
       <div className="mailing-success">
         <FiCheckCircle className="icon" />
-        <h4>Check your inbox</h4>
-        <p>We sent a verification link to confirm your subscription.</p>
+        <h4>{deliverySkipped ? 'Subscription saved' : 'Check your inbox'}</h4>
+        <p>
+          {deliverySkipped
+            ? 'Email delivery is not configured locally, but this address was saved in MongoDB.'
+            : 'We sent a verification link to confirm your subscription.'}
+        </p>
       </div>
     )
   }

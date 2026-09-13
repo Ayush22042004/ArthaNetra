@@ -126,6 +126,26 @@ const Dashboard = () => {
 
   // Removed unused formatCurrency function
 
+  const downloadDashboardReport = () => {
+    const report = {
+      title: 'ArthaNetra MPLADS Dashboard Report',
+      generatedAt: new Date().toISOString(),
+      period: periodLabel,
+      overview,
+      filters,
+      source: 'ArthaNetra local dashboard data',
+    }
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `arthanetra-dashboard-report-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
+
   const formatNumber = num => {
     return new Intl.NumberFormat('en-IN').format(num || 0)
   }
@@ -388,14 +408,14 @@ const Dashboard = () => {
                   <div className="action-btn-wrapper">
                     <Button
                       className="action-btn"
-                      disabled
+                      onClick={() => navigate('/mplads/contractors')}
                       aria-describedby="top-performers-disabled-tooltip"
                       variant="outline"
                     >
                       View Top Performers
                     </Button>
                     <InfoTooltip
-                      content="Top Performers feature is being worked on with very high priority and will be live soon!"
+                      content="Open the contractor quality credit leaderboard and performance shortlist."
                       position="top"
                       className="tooltip"
                       size="small"
@@ -404,14 +424,14 @@ const Dashboard = () => {
                   <div className="action-btn-wrapper">
                     <Button
                       className="action-btn"
-                      disabled
+                      onClick={downloadDashboardReport}
                       aria-describedby="report-disabled-tooltip"
                       variant="outline"
                     >
                       Download Report
                     </Button>
                     <InfoTooltip
-                      content="Report generation is coming soon. You'll be able to download comprehensive MPLADS reports in PDF format."
+                      content="Download the current dashboard snapshot as a portable JSON report."
                       position="top"
                       className="tooltip"
                       size="small"

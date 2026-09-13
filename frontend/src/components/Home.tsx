@@ -13,7 +13,6 @@ import {
   Users,
 } from 'lucide-react'
 import './Home.css'
-import MailingListForm from './MPLADS/components/Common/MailingListForm'
 import ArthaNetraLogo from './common/ArthaNetraLogo'
 import SiteFooter from './common/SiteFooter'
 import { Button } from '@/components/ui/button'
@@ -217,17 +216,6 @@ function Home() {
               </li>
             ))}
           </ul>
-        </div>
-      </section>
-
-      <section className="home-section home-section--updates">
-        <div className="updates-card">
-          <div>
-            <span>Stay connected</span>
-            <h2>Get ArthaNetra updates</h2>
-            <p>Follow data refreshes, risk improvements, and project monitoring releases.</p>
-          </div>
-          <MailingListForm />
         </div>
       </section>
 

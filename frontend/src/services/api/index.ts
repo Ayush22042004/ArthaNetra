@@ -6,6 +6,7 @@ export { analyticsAPI } from './analytics'
 export { expendituresAPI } from './expenditures'
 export { weatherAPI } from './weather'
 export { assistantAPI } from './assistant'
+export { contractorsAPI } from './contractors'
 
 import { summaryAPI } from './summary'
 import { mpladsAPI } from './mplads'
@@ -14,6 +15,7 @@ import { analyticsAPI } from './analytics'
 import { expendituresAPI } from './expenditures'
 import { weatherAPI } from './weather'
 import { assistantAPI } from './assistant'
+import { contractorsAPI } from './contractors'
 
 // Re-export all APIs as a single object for convenience
 export const api = {
@@ -24,4 +26,5 @@ export const api = {
   expenditures: expendituresAPI,
   weather: weatherAPI,
   assistant: assistantAPI,
+  contractors: contractorsAPI,
 }

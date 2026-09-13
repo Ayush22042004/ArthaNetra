@@ -83,6 +83,36 @@ interface MapProject {
   lng: number
   coordinateSource: 'project' | 'constituency' | 'state' | 'country'
   daysDelayed: number
+  dataSource?: 'risk_engine' | 'constituency_cluster' | 'contractor_evidence'
+  sourceWorkId?: string | number
+  latestVerificationStatus?: string
+  latestVerificationScore?: number | null
+  mapStatusLabel?: string
+  mapStatusReason?: string
+}
+
+interface ContractorMapProject {
+  projectId?: string
+  title?: string
+  contractorName?: string
+  district?: string
+  state?: string
+  category?: string
+  progressPercent?: number
+  expectedProgress?: number
+  riskLevel?: string
+  latitude?: number
+  longitude?: number
+  latestPhotoUrl?: string
+  latestVerificationScore?: number | null
+  latestVerificationStatus?: string
+  contractorQualityCredit?: number | null
+  source?: string
+  sourceWorkId?: string | number
+  coordinateSource?: string
+  mpName?: string
+  mapStatusLabel?: string
+  mapStatusReason?: string
 }
 
 interface RiskDensityGroup {
@@ -314,6 +344,68 @@ const selectedProjectKey = (project: MapProject | undefined) =>
 
 const hashString = (value: string) =>
   value.split('').reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 7)
+
+const normalizeContractorProject = (project: ContractorMapProject, index: number): MapProject => {
+  const riskLevel = toRiskLevel(project.riskLevel, project.riskLevel === 'High' ? 82 : project.riskLevel === 'Medium' ? 58 : 24)
+  const progress = Math.min(100, Math.max(0, Math.round(toNumber(project.progressPercent))))
+  const verificationScore = toNumber(project.latestVerificationScore, 0)
+  const evidenceRisk =
+    project.latestVerificationStatus === 'SUSPICIOUS'
+      ? 92
+      : project.latestVerificationStatus === 'REVIEW_REQUIRED'
+        ? 68
+        : riskLevel === 'High'
+          ? 78
+          : riskLevel === 'Medium'
+            ? 52
+            : 22
+  const photo = typeof project.latestPhotoUrl === 'string' && project.latestPhotoUrl ? [project.latestPhotoUrl] : []
+  const sourceLabel =
+    project.source === 'official_mplads_work'
+      ? `Official MPLADS work${project.sourceWorkId ? ` #${project.sourceWorkId}` : ''}`
+      : 'Contractor execution layer'
+
+  return {
+    id: 900000000 + (hashString(project.projectId || `contractor-${index}`) % 90000000),
+    title: project.title || 'Contractor monitored MPLADS work',
+    category: project.category || 'Field execution',
+    constituency: project.mpName || project.district || 'Contractor monitored work',
+    district: project.district || 'Unknown district',
+    state: project.state || 'India',
+    funds: 0,
+    expenditure: 0,
+    progress,
+    risk: evidenceRisk,
+    riskLevel,
+    reasons: [
+      sourceLabel,
+      project.mapStatusReason || 'Latest contractor evidence is linked to this map marker.',
+      project.coordinateSource === 'state_centroid_fallback_not_official_site_gps'
+        ? 'MPLADS record does not expose exact worksite GPS; state-level fallback is visibly marked.'
+        : 'Field or record coordinate is available for this contractor marker.',
+      verificationScore ? `Latest verification score is ${verificationScore}/100.` : 'No field evidence score yet.',
+    ],
+    status: project.latestVerificationStatus || project.mapStatusLabel || 'Field monitoring',
+    contractor: project.contractorName || 'Assigned contractor',
+    qualityRating: project.contractorQualityCredit ? Math.min(5, project.contractorQualityCredit / 20) : 0,
+    images: photo,
+    lat: toNumber(project.latitude, 22.9734),
+    lng: toNumber(project.longitude, 78.6569),
+    coordinateSource:
+      project.coordinateSource === 'official_or_record_coordinate'
+        ? 'project'
+        : project.coordinateSource === 'state_centroid_fallback_not_official_site_gps'
+          ? 'state'
+          : 'project',
+    daysDelayed: riskLevel === 'High' ? 18 : riskLevel === 'Medium' ? 6 : 0,
+    dataSource: 'contractor_evidence',
+    sourceWorkId: project.sourceWorkId,
+    latestVerificationStatus: project.latestVerificationStatus,
+    latestVerificationScore: project.latestVerificationScore,
+    mapStatusLabel: project.mapStatusLabel,
+    mapStatusReason: project.mapStatusReason,
+  }
+}
 
 const buildDynamicRiskReasons = (
   project: MapProject | undefined,
@@ -746,12 +838,14 @@ const IntelligenceMap = () => {
     try {
       setLoading(true)
       setError('')
-      const [riskResponse, constituencyResponse] = await Promise.all([
+      const [riskResponse, constituencyResponse, contractorResponse] = await Promise.all([
         apiClient.get('/ai/risk-analysis'),
         apiClient.get('/works/constituencies', { skipErrorToast: true }),
+        apiClient.get('/contractors/map-projects', { skipErrorToast: true }),
       ])
       const analysis = riskResponse?.data || riskResponse
       const constituencyData = constituencyResponse?.data || constituencyResponse
+      const contractorData = contractorResponse?.data || contractorResponse
       const rawWorks: RiskApiWork[] = Array.isArray(analysis?.data?.results)
         ? analysis.data.results
         : Array.isArray(analysis?.results)
@@ -766,8 +860,15 @@ const IntelligenceMap = () => {
       const lowProjects = constituencyRows
         .map(normalizeConstituencyLowPoint)
         .filter((project): project is MapProject => Boolean(project))
-      const normalizedProjects = selectVisibleProjects([...riskProjects, ...lowProjects])
+      const contractorProjects: ContractorMapProject[] = Array.isArray(contractorData?.data?.projects)
+        ? contractorData.data.projects
+        : Array.isArray(contractorData?.projects)
+          ? contractorData.projects
+          : []
+      const contractorMapProjects = contractorProjects.map(normalizeContractorProject)
+      const normalizedProjects = selectVisibleProjects([...contractorMapProjects, ...riskProjects, ...lowProjects])
       const firstRiskProject =
+        normalizedProjects.find(project => project.dataSource === 'contractor_evidence' && project.images.length) ||
         normalizedProjects.find(project => project.riskLevel === 'High') ||
         normalizedProjects.find(project => project.riskLevel === 'Medium') ||
         normalizedProjects[0]
@@ -1138,6 +1239,19 @@ const IntelligenceMap = () => {
             <span className={`risk-pill ${riskClass(selectedProject.riskLevel)}`}>
               {selectedProject.riskLevel} - {selectedProject.risk}
             </span>
+            {selectedProject.dataSource === 'contractor_evidence' && (
+              <div className="contractor-evidence-chip">
+                <FiCheckCircle />
+                <div>
+                  <span>Contractor field evidence</span>
+                  <strong>
+                    {selectedProject.latestVerificationScore
+                      ? `${selectedProject.latestVerificationScore}/100 verification`
+                      : selectedProject.latestVerificationStatus || 'Awaiting verification'}
+                  </strong>
+                </div>
+              </div>
+            )}
             <div className="contractor-rating-card">
               <FiStar />
               <div>

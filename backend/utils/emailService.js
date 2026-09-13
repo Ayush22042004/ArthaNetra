@@ -16,9 +16,38 @@ const generateVerificationToken = () => {
   return crypto.randomBytes(32).toString('hex')
 }
 
+const hasUsableEmailConfig = () => {
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_APP_PASSWORD
+
+  return Boolean(
+    user &&
+      pass &&
+      !/your_email|example\.com/i.test(user) &&
+      !/your_email|app_password|password/i.test(pass)
+  )
+}
+
 const sendVerificationEmail = async (email, verificationToken, unsubscribeToken) => {
   const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationToken}`
   const unsubscribeUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/unsubscribe/${unsubscribeToken}`
+
+  if (!hasUsableEmailConfig()) {
+    secureLogger.warn('Verification email skipped because SMTP is not configured', {
+      category: 'email',
+      type: 'verification_skipped',
+      email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
+      timestamp: new Date().toISOString(),
+    })
+
+    return {
+      success: true,
+      skipped: true,
+      reason: 'SMTP_NOT_CONFIGURED',
+      verificationUrl:
+        process.env.NODE_ENV === 'production' ? undefined : verificationUrl,
+    }
+  }
 
   const mailOptions = {
     from: {
@@ -142,6 +171,18 @@ const sendWelcomeEmail = async email => {
   const unsubscribeUrl = subscriber
     ? `${process.env.FRONTEND_URL || 'http://localhost:5173'}/unsubscribe/${subscriber.unsubscribeToken}`
     : '#'
+
+  if (!hasUsableEmailConfig()) {
+    secureLogger.warn('Welcome email skipped because SMTP is not configured', {
+      category: 'email',
+      type: 'welcome_skipped',
+      email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
+      timestamp: new Date().toISOString(),
+    })
+
+    return { success: true, skipped: true, reason: 'SMTP_NOT_CONFIGURED' }
+  }
+
   const mailOptions = {
     from: {
       name: process.env.EMAIL_FROM_NAME || 'ArthaNetra',

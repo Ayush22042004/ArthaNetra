@@ -427,14 +427,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.55rem;
+  min-width: min(100%, 245px);
 }
 
 .action-btn-wrapper .tooltip {
+  flex: 0 0 auto;
   padding: 5px;
 }
 
 .action-btn-wrapper .action-btn {
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
 }
 
 /* Charts Section Styles */
@@ -1048,12 +1053,17 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: center;
 }
 
 .quick-actions .action-btn {
   min-height: 42px;
   border-radius: 8px;
   font-weight: 850;
+}
+
+.quick-actions > .action-btn {
+  min-width: 190px;
 }
 
 @media (max-width: 1180px) {

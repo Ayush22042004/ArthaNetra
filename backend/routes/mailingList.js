@@ -55,10 +55,17 @@ router.post(
           }
           await existingSubscriber.save()
 
-          await sendVerificationEmail(email, verificationToken, existingSubscriber.unsubscribeToken)
+          const emailDelivery = await sendVerificationEmail(
+            email,
+            verificationToken,
+            existingSubscriber.unsubscribeToken
+          )
 
           return res.status(200).json({
-            message: 'Verification email sent! Please check your email to complete subscription',
+            message: emailDelivery.skipped
+              ? 'Subscription saved locally. SMTP email delivery is not configured.'
+              : 'Verification email sent! Please check your email to complete subscription',
+            emailDelivery,
             subscriber: {
               email: existingSubscriber.email,
               subscribedAt: existingSubscriber.subscribedAt,
@@ -98,10 +105,13 @@ router.post(
       })
 
       await subscriber.save()
-      await sendVerificationEmail(email, verificationToken, unsubscribeToken)
+      const emailDelivery = await sendVerificationEmail(email, verificationToken, unsubscribeToken)
 
       res.status(201).json({
-        message: 'Please check your email to verify your subscription',
+        message: emailDelivery.skipped
+          ? 'Subscription saved locally. SMTP email delivery is not configured.'
+          : 'Please check your email to verify your subscription',
+        emailDelivery,
         subscriber: {
           email: subscriber.email,
           subscribedAt: subscriber.subscribedAt,

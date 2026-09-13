@@ -20,6 +20,9 @@ const Compare = lazy(() => import('./components/MPLADS/pages/Compare'))
 const Report = lazy(() => import('./components/MPLADS/pages/Report'))
 const RiskAnalysis = lazy(() => import('./components/MPLADS/pages/RiskAnalysis'))
 const IntelligenceMap = lazy(() => import('./components/MPLADS/pages/IntelligenceMap'))
+const ContractorLogin = lazy(() => import('./components/MPLADS/pages/ContractorLogin'))
+const ContractorPortal = lazy(() => import('./components/MPLADS/pages/ContractorPortal'))
+const ContractorLeaderboard = lazy(() => import('./components/MPLADS/pages/ContractorLeaderboard'))
 const SystemArchitecture = lazy(() => import('./components/MPLADS/pages/SystemArchitecture'))
 const SearchResults = lazy(() => import('./components/MPLADS/pages/SearchResults'))
 const StateList = lazy(() => import('./components/MPLADS/pages/StateList'))
@@ -86,6 +89,10 @@ function App() {
                 element={withRouteFallback(<UnsubscribeSuccess />)}
               />
               <Route path="/login" element={withRouteFallback(<Login />)} />
+              <Route
+                path="/contractor-login"
+                element={withRouteFallback(<ContractorLogin />)}
+              />
 
               {/* MPLADS Routes */}
               <Route
@@ -124,6 +131,18 @@ function App() {
                 <Route
                   path="maps"
                   element={withRouteFallback(<IntelligenceMap />, 'route-fallback--mplads')}
+                />
+                <Route
+                  path="contractors"
+                  element={withRouteFallback(<ContractorLeaderboard />, 'route-fallback--mplads')}
+                />
+                <Route
+                  path="contractor-portal"
+                  element={withRouteFallback(<ContractorPortal />, 'route-fallback--mplads')}
+                />
+                <Route
+                  path="contractor-login"
+                  element={withRouteFallback(<ContractorLogin />, 'route-fallback--mplads')}
                 />
                 <Route
                   path="architecture"

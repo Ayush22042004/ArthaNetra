@@ -18,6 +18,7 @@ const aiRoutes = require('./ai')
 const weatherRoutes = require('./weather')
 const assistantRoutes = require('./assistant')
 const projectImageRoutes = require('./projectImages')
+const contractorRoutes = require('./contractors')
 
 router.get('/', (req, res) => {
   res.json({
@@ -32,6 +33,12 @@ router.get('/', (req, res) => {
       '/api/weather/forecast?lat=28.61&lng=77.20',
       '/api/project-images?query=road%20construction',
       '/api/assistant/chat',
+      '/api/contractors/dashboard',
+      '/api/contractors/leaderboard',
+      '/api/contractors/field-monitoring',
+      '/api/contractors/source-coverage',
+      '/api/contractors/map-projects',
+      '/api/contractors/projects/field-road-ward-5/shortlist',
     ],
   })
 })
@@ -54,5 +61,6 @@ router.use('/ai', aiRoutes)
 router.use('/weather', weatherRoutes)
 router.use('/project-images', projectImageRoutes)
 router.use('/assistant', assistantRoutes)
+router.use('/contractors', contractorRoutes)
 
 module.exports = router

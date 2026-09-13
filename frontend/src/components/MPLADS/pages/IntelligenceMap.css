@@ -695,6 +695,7 @@
   color: #2f8e87;
 }
 
+.contractor-evidence-chip,
 .contractor-rating-card,
 .weather-chip,
 .weather-progress-card {
@@ -703,6 +704,7 @@
   background: #f8fafc;
 }
 
+.contractor-evidence-chip,
 .contractor-rating-card {
   display: flex;
   gap: 12px;
@@ -710,17 +712,32 @@
   padding: 12px;
 }
 
+.contractor-evidence-chip {
+  border-color: #b7eee5;
+  background: #eefdf9;
+}
+
+.contractor-evidence-chip svg,
 .contractor-rating-card svg {
   flex: 0 0 auto;
-  color: #c08921;
   font-size: 1.1rem;
 }
 
+.contractor-evidence-chip svg {
+  color: #00897b;
+}
+
+.contractor-rating-card svg {
+  color: #c08921;
+}
+
+.contractor-evidence-chip div,
 .contractor-rating-card div {
   display: grid;
   gap: 3px;
 }
 
+.contractor-evidence-chip span,
 .contractor-rating-card span,
 .contractor-rating-card em {
   color: #64748b;
@@ -728,6 +745,7 @@
   font-style: normal;
 }
 
+.contractor-evidence-chip strong,
 .contractor-rating-card strong {
   color: #102033;
   font-size: 0.88rem;

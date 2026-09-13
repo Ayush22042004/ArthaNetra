@@ -27,7 +27,7 @@ const SiteFooter = ({ extraInfo, className = '', showFaq = true }: SiteFooterPro
             </p>
             <div className="footer-social">
               <a
-                href="https://github.com/arthanetra"
+                href="https://github.com/Ayush22042004/ArthaNetra.git"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="social-link"
