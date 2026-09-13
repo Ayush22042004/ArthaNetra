@@ -77,6 +77,83 @@ const buildFallbackWeatherSignal = ({ latitude, longitude, label, statusCode }) 
   fetchedAt: new Date().toISOString(),
 })
 
+const summarizeWttrDaily = day => {
+  const hourly = Array.isArray(day?.hourly) ? day.hourly : []
+  const rainChances = hourly.map(entry => toNumber(entry.chanceofrain) || 0)
+  const rainAmounts = hourly.map(entry => toNumber(entry.precipMM) || 0)
+
+  return {
+    probability: rainChances.length ? Math.max(...rainChances) : 0,
+    precipitation: rainAmounts.reduce((total, value) => total + value, 0),
+  }
+}
+
+const fetchWttrForecast = async ({ latitude, longitude, label, primaryStatusCode }) => {
+  const url = `https://wttr.in/${latitude},${longitude}?format=j1`
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'ArthaNetra-MPLADS/1.0 (weather fallback)',
+      Accept: 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    const error = new Error('Secondary weather provider request failed')
+    error.statusCode = response.status
+    throw error
+  }
+
+  const payload = await response.json()
+  const current = payload.current_condition?.[0] || {}
+  const dailyRows = Array.isArray(payload.weather) ? payload.weather.slice(0, 3) : []
+  const dailySummary = dailyRows.map(summarizeWttrDaily)
+
+  const normalizedPayload = {
+    current: {
+      temperature_2m: toNumber(current.temp_C),
+      precipitation: toNumber(current.precipMM),
+      rain: toNumber(current.precipMM),
+      wind_speed_10m: toNumber(current.windspeedKmph),
+      weather_code: toNumber(current.weatherCode),
+    },
+    daily: {
+      precipitation_probability_max: dailySummary.map(day => day.probability),
+      precipitation_sum: dailySummary.map(day => Number(day.precipitation.toFixed(2))),
+    },
+  }
+
+  return {
+    label: label || 'Selected MPLADS site',
+    latitude,
+    longitude,
+    current: normalizedPayload.current,
+    daily: normalizedPayload.daily,
+    units: {
+      temperature: 'C',
+      precipitation: 'mm',
+      wind: 'km/h',
+    },
+    risk: classifyWeatherRisk(normalizedPayload),
+    cached: false,
+    provider: 'wttr.in',
+    primaryProviderStatusCode: primaryStatusCode || null,
+    fetchedAt: new Date().toISOString(),
+  }
+}
+
+const fetchFallbackWeather = async ({ latitude, longitude, label, statusCode }) => {
+  try {
+    return await fetchWttrForecast({
+      latitude,
+      longitude,
+      label,
+      primaryStatusCode: statusCode,
+    })
+  } catch (error) {
+    return buildFallbackWeatherSignal({ latitude, longitude, label, statusCode })
+  }
+}
+
 const fetchWeatherForecast = async ({ lat, lng, label }) => {
   const latitude = toNumber(lat)
   const longitude = toNumber(lng)
@@ -111,7 +188,7 @@ const fetchWeatherForecast = async ({ lat, lng, label }) => {
   try {
     response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`)
   } catch (error) {
-    const fallback = buildFallbackWeatherSignal({ latitude, longitude, label })
+    const fallback = await fetchFallbackWeather({ latitude, longitude, label })
     weatherCache.set(key, {
       cachedAt: Date.now(),
       data: fallback,
@@ -120,7 +197,7 @@ const fetchWeatherForecast = async ({ lat, lng, label }) => {
   }
 
   if (!response.ok) {
-    const fallback = buildFallbackWeatherSignal({
+    const fallback = await fetchFallbackWeather({
       latitude,
       longitude,
       label,
@@ -149,6 +226,7 @@ const fetchWeatherForecast = async ({ lat, lng, label }) => {
     },
     risk,
     cached: false,
+    provider: 'open-meteo',
     fetchedAt: new Date().toISOString(),
   }
 
