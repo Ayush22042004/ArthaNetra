@@ -28,9 +28,26 @@ const componentLabels: Record<string, string> = {
   lowAnomalyRate: 'Low review rate',
 }
 
+const filterContractors = (
+  rows: Contractor[],
+  activeFilters: { district: string; specialization: string }
+) =>
+  rows.filter(contractor => {
+    const matchesDistrict =
+      !activeFilters.district ||
+      String(contractor.district || '').toLowerCase() === activeFilters.district.toLowerCase()
+    const matchesSpecialization =
+      !activeFilters.specialization ||
+      (contractor.specializations || []).some(
+        item => String(item || '').toLowerCase() === activeFilters.specialization.toLowerCase()
+      )
+
+    return matchesDistrict && matchesSpecialization
+  })
+
 const ContractorLeaderboard = () => {
   const [contractors, setContractors] = useState<Contractor[]>([])
-  const [filterOptions, setFilterOptions] = useState<Contractor[]>([])
+  const [allContractors, setAllContractors] = useState<Contractor[]>([])
   const [loading, setLoading] = useState(true)
   const [filtersAppliedAt, setFiltersAppliedAt] = useState('')
   const [appliedFilters, setAppliedFilters] = useState({ district: '', specialization: '' })
@@ -47,17 +64,13 @@ const ContractorLeaderboard = () => {
       setError('')
       setLoading(true)
       const [response, monitoringResponse, mapResponse] = await Promise.all([
-        contractorsAPI.getLeaderboard({
-          district: nextFilters.district || undefined,
-          specialization: nextFilters.specialization || undefined,
-        }),
+        contractorsAPI.getLeaderboard(),
         contractorsAPI.getFieldMonitoring(),
         contractorsAPI.getMapProjects(),
       ])
-      setContractors(response.data || [])
-      if (!nextFilters.district && !nextFilters.specialization) {
-        setFilterOptions(response.data || [])
-      }
+      const rows = response.data || []
+      setAllContractors(rows)
+      setContractors(filterContractors(rows, nextFilters))
       setMonitoring(monitoringResponse.data)
       setMapFeed(mapResponse.data)
       setAppliedFilters(nextFilters)
@@ -95,26 +108,32 @@ const ContractorLeaderboard = () => {
   const mapProjects = mapFeed?.projects || []
   const selectedProject = mapProjects.find((project: any) => project.projectId === selectedProjectId)
   const filters = useMemo(() => {
-    const source = filterOptions.length ? filterOptions : contractors
+    const source = allContractors.length ? allContractors : contractors
     const districts = Array.from(new Set(source.map(contractor => contractor.district))).sort()
     const specializations = Array.from(
       new Set(source.flatMap(contractor => contractor.specializations || []))
     ).sort()
     return { districts, specializations }
-  }, [contractors, filterOptions])
+  }, [contractors, allContractors])
 
   const hasActiveDraftFilters = Boolean(district || specialization)
   const hasPendingFilterChanges =
     district !== appliedFilters.district || specialization !== appliedFilters.specialization
 
   const handleApplyFilters = () => {
-    loadLeaderboard({ district, specialization })
+    const nextFilters = { district, specialization }
+    setContractors(filterContractors(allContractors, nextFilters))
+    setAppliedFilters(nextFilters)
+    setFiltersAppliedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
   }
 
   const handleClearFilters = () => {
     setDistrict('')
     setSpecialization('')
-    loadLeaderboard({ district: '', specialization: '' })
+    const nextFilters = { district: '', specialization: '' }
+    setContractors(allContractors)
+    setAppliedFilters(nextFilters)
+    setFiltersAppliedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
   }
 
   return (
@@ -288,6 +307,11 @@ const ContractorLeaderboard = () => {
           Array.from({ length: 4 }).map((_, index) => (
             <article className="leaderboard-row is-loading" key={index} />
           ))
+        ) : contractors.length === 0 ? (
+          <article className="leaderboard-empty">
+            <strong>No contractors match these filters.</strong>
+            <span>Clear filters or choose a broader district/specialization.</span>
+          </article>
         ) : (
           contractors.map(contractor => (
             <article className="leaderboard-row" key={contractor.contractorId}>

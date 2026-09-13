@@ -356,7 +356,8 @@
 }
 
 .leaderboard-summary article,
-.leaderboard-row {
+.leaderboard-row,
+.leaderboard-empty {
   border: 1px solid rgba(20, 80, 92, 0.12);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
@@ -404,6 +405,23 @@
   gap: 1rem;
   align-items: center;
   padding: 1rem;
+}
+
+.leaderboard-empty {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.leaderboard-empty strong {
+  color: #102538;
+  font-size: 1.05rem;
+}
+
+.leaderboard-empty span {
+  color: #61788a;
+  font-weight: 750;
 }
 
 .leaderboard-row.is-loading {
@@ -596,7 +614,8 @@
   .field-monitoring-panel,
   .shortlist-panel,
   .leaderboard-summary article,
-  .leaderboard-row {
+  .leaderboard-row,
+  .leaderboard-empty {
     padding: 0.85rem;
   }
 
