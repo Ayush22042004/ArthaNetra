@@ -1,0 +1,277 @@
+/* Shared mobile polish for the MPLADS app.
+   Keeps phone layouts from feeling like squeezed desktop screens. */
+
+@media (max-width: 768px) {
+  html,
+  body,
+  #root,
+  .app {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .mplads-main {
+    padding-top: 10px;
+    padding-bottom: 24px;
+  }
+
+  .mplads-container {
+    width: 100%;
+    padding-inline: 10px;
+  }
+
+  .route-fallback {
+    margin-inline: 10px;
+  }
+
+  .dashboard,
+  .intelligence-map-page,
+  .leaderboard-page,
+  .contractor-portal,
+  .report-page,
+  .risk-analysis,
+  .compare-page,
+  .track-area,
+  .state-list,
+  .state-detail,
+  .mp-list,
+  .mp-detail,
+  .search-results,
+  .admin-page,
+  .system-architecture-page {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .dashboard-header,
+  .map-workspace,
+  .leaderboard-hero,
+  .leaderboard-toolbar,
+  .field-monitoring-panel,
+  .shortlist-panel,
+  .coverage-panel,
+  .public-source-panel,
+  .contractor-shell,
+  .contractor-panel,
+  .report-panel,
+  .risk-panel,
+  .compare-panel,
+  .state-detail-card,
+  .mp-detail-card,
+  .chart-container,
+  .info-card {
+    border-radius: 8px !important;
+    padding: 14px !important;
+  }
+
+  .dashboard-header h1,
+  .map-copy h1,
+  .leaderboard-hero h1,
+  .contractor-hero h1,
+  .report-hero h1,
+  .risk-hero h1,
+  .compare-hero h1,
+  .track-hero h1,
+  .state-list h1,
+  .state-detail h1,
+  .mp-list h1,
+  .mp-detail h1,
+  .system-architecture-page h1 {
+    font-size: clamp(1.85rem, 10vw, 2.65rem) !important;
+    line-height: 1.02 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .dashboard-header p,
+  .map-copy p,
+  .leaderboard-hero p,
+  .contractor-hero p,
+  .report-hero p,
+  .risk-hero p,
+  .compare-hero p,
+  .track-hero p {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .metrics-grid,
+  .dashboard-info,
+  .chart-row,
+  .quick-actions,
+  .leaderboard-summary,
+  .field-command-grid,
+  .coverage-grid,
+  .public-source-grid,
+  .project-gallery,
+  .contractor-project-grid,
+  .contractor-metrics,
+  .contractor-update-grid,
+  .report-grid,
+  .risk-grid,
+  .compare-grid,
+  .state-grid,
+  .mp-grid,
+  .search-results-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .dashboard-controls,
+  .dashboard-actions,
+  .chart-header,
+  .performance-highlights,
+  .leaderboard-actions,
+  .map-actions,
+  .project-status-row {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .dashboard-actions,
+  .quick-actions,
+  .leaderboard-actions,
+  .map-actions {
+    width: 100%;
+  }
+
+  .action-btn,
+  .action-btn-wrapper,
+  .quick-actions .action-btn,
+  .leaderboard-toolbar button,
+  .leaderboard-actions a,
+  .map-actions button,
+  .report-actions button,
+  .contractor-action,
+  .risk-action,
+  .compare-action {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 16px;
+  }
+
+  .metric-card,
+  .leaderboard-row,
+  .contractor-card,
+  .project-card,
+  .state-card,
+  .mp-card,
+  .search-result-card {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .metric-card {
+    align-items: flex-start;
+    min-height: auto;
+  }
+
+  .metric-title,
+  .metric-description,
+  .metric-period,
+  .contractor-profile span,
+  .contractor-stats span,
+  .score-components span,
+  .coverage-grid small {
+    overflow-wrap: anywhere;
+  }
+
+  .metric-value,
+  .rank-block strong,
+  .coverage-grid strong,
+  .leaderboard-summary strong {
+    font-size: clamp(1.35rem, 8vw, 1.9rem) !important;
+  }
+
+  .chart-container {
+    overflow: hidden;
+  }
+
+  .recharts-wrapper,
+  .recharts-surface {
+    max-width: 100%;
+  }
+
+  .responsive-table-desktop,
+  .table-wrap,
+  .data-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .responsive-table,
+  table {
+    min-width: 640px;
+  }
+
+  .mobile-card,
+  .responsive-table-empty {
+    border: 1px solid rgba(216, 226, 235, 0.9);
+    border-radius: 8px;
+  }
+
+  .mobile-row-field {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .mobile-field-value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
+
+  .site-footer,
+  .mplads-footer {
+    margin-top: 18px;
+  }
+
+  .mplads-footer .footer-container {
+    padding-inline: 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .mplads-container {
+    padding-inline: 8px;
+  }
+
+  .dashboard-header,
+  .map-workspace,
+  .leaderboard-hero,
+  .leaderboard-toolbar,
+  .field-monitoring-panel,
+  .shortlist-panel,
+  .coverage-panel,
+  .public-source-panel,
+  .chart-container,
+  .info-card {
+    padding: 12px !important;
+  }
+
+  .dashboard-header h1,
+  .map-copy h1,
+  .leaderboard-hero h1,
+  .contractor-hero h1,
+  .report-hero h1,
+  .risk-hero h1,
+  .compare-hero h1,
+  .track-hero h1 {
+    font-size: clamp(1.75rem, 11vw, 2.25rem) !important;
+  }
+
+  .rank-block {
+    justify-items: start !important;
+  }
+}

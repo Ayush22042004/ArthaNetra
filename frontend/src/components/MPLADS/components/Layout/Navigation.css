@@ -257,16 +257,16 @@
     top: 64px;
     flex-direction: column;
     background-color: white;
-    width: 100%;
+    width: min(92vw, 380px);
     height: calc(100vh - 64px);
-    text-align: center;
+    text-align: left;
     transition: left 0.3s ease-in-out;
     box-shadow: 0 10px 27px rgba(0, 0, 0, 0.15);
     padding: 1rem 0 2rem;
     gap: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    z-index: 20; /* Lower than modals but higher than sticky nav */
+    z-index: 20; /* Above the mobile backdrop, below modals */
     box-sizing: border-box;
   }
 
@@ -291,7 +291,7 @@
   .nav-item:hover,
   .nav-item:focus {
     background-color: #f7fafc;
-    transform: translateX(4px);
+    transform: none;
     box-shadow: inset 4px 0 0 #2c5282;
   }
 
@@ -356,23 +356,11 @@
 
   /* Add backdrop blur for better visual separation */
   .nav-menu::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(2px);
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
+    display: none;
   }
 
   .nav-menu-active::before {
-    opacity: 1;
-    pointer-events: auto;
+    display: none;
   }
 }
 
@@ -500,6 +488,10 @@
   }
   .nav-title {
     max-width: 60vw;
+  }
+
+  .nav-menu {
+    width: min(94vw, 360px);
   }
 }
 

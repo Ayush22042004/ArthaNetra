@@ -1100,6 +1100,10 @@
 }
 
 @media (max-width: 760px) {
+  .intelligence-map-page {
+    overflow-x: hidden;
+  }
+
   .map-workspace,
   .map-metrics,
   .project-signal-panel,
@@ -1107,15 +1111,49 @@
     grid-template-columns: 1fr;
   }
 
+  .map-workspace {
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .map-copy h1 {
+    font-size: clamp(1.9rem, 11vw, 2.55rem);
+  }
+
+  .map-metrics {
+    gap: 8px;
+  }
+
   .ranked-list {
-    min-height: 280px;
+    min-height: 220px;
     max-height: none;
+    padding: 14px;
   }
 
   .india-map-panel,
   .india-map-panel iframe {
-    height: 480px;
+    height: min(72vh, 430px);
     min-height: 0;
+  }
+
+  .map-legend {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.75rem;
+  }
+
+  .signal-card,
+  .field-tracking,
+  .risk-reason-panel,
+  .weather-progress-card {
+    padding: 14px;
+  }
+
+  .signal-card dl {
+    grid-template-columns: 1fr;
   }
 
   .weather-progress-card {
@@ -1128,6 +1166,11 @@
 
   .satellite-card {
     padding: 14px;
+    min-height: 320px;
+  }
+
+  .satellite-card iframe {
+    min-height: 260px;
   }
 
   .milestones div {
@@ -1136,5 +1179,35 @@
 
   .milestones em {
     grid-column: 2;
+  }
+
+  .project-gallery figcaption {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 420px) {
+  .map-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .map-actions button {
+    justify-content: center;
+    padding: 10px 8px;
+  }
+
+  .ranked-list button {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .ranked-list button b {
+    grid-column: 2;
+    grid-row: auto;
+  }
+
+  .map-detail-popover {
+    width: calc(100% - 28px);
   }
 }

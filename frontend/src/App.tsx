@@ -8,6 +8,7 @@ import ProtectedRoute from './components/common/ProtectedRoute'
 import RouteAnalytics from './components/common/RouteAnalytics'
 import Layout from './components/MPLADS/components/Layout/Layout'
 import './App.css'
+import './components/MPLADS/styles/mobile-polish.css'
 
 const Home = lazy(() => import('./components/Home'))
 const PrivacyPolicy = lazy(() => import('./components/PrivacyPolicy'))

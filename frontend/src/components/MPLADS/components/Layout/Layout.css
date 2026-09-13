@@ -41,6 +41,21 @@
 
 @media (max-width: 760px) {
   .mplads-main {
-    padding-top: 16px;
+    padding-top: 10px;
+    padding-bottom: 28px;
+  }
+
+  .mplads-container {
+    padding-inline: 10px;
+  }
+
+  .mplads-footer {
+    padding: 26px 0 22px;
+  }
+}
+
+@media (max-width: 420px) {
+  .mplads-container {
+    padding-inline: 8px;
   }
 }
