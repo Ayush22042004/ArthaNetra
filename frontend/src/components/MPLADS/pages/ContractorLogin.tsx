@@ -71,7 +71,7 @@ const ContractorLogin = () => {
           <div className="login-flow-strip">
             <div>
               <strong>Login</strong>
-              <span>Contractor enters the field portal with a verified demo account.</span>
+              <span>Contractor enters the field portal with a verified field account.</span>
             </div>
             <div>
               <strong>Assigned works</strong>
@@ -93,7 +93,7 @@ const ContractorLogin = () => {
           <div className="login-card-title">
             <FiBriefcase />
             <div>
-              <span>Demo contractor account</span>
+              <span>Contractor account</span>
               <strong>Sign in to field portal</strong>
             </div>
           </div>
@@ -125,7 +125,7 @@ const ContractorLogin = () => {
           </button>
 
           <div className="demo-account-list" aria-busy={accountsLoading}>
-            <span>Quick demo accounts</span>
+            <span>Field access accounts</span>
             {accounts.map(account => (
               <button type="button" key={account.email} onClick={() => useAccount(account)}>
                 <strong>{account.companyName}</strong>

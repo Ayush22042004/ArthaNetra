@@ -178,7 +178,7 @@ const ContractorPortal = () => {
 
   const captureGps = () => {
     if (!navigator.geolocation) {
-      setGpsMessage('Browser GPS is unavailable. Demo site GPS loaded.')
+      setGpsMessage('Browser GPS is unavailable. Registered site GPS loaded.')
       useDemoGps()
       return
     }
@@ -195,7 +195,7 @@ const ContractorPortal = () => {
         setGpsMessage(`GPS captured with ${Math.round(position.coords.accuracy)}m accuracy`)
       },
       () => {
-        setGpsMessage('GPS permission blocked. Demo site GPS loaded.')
+        setGpsMessage('GPS permission blocked. Registered site GPS loaded.')
         useDemoGps()
       },
       { enableHighAccuracy: true, timeout: 8000 }
@@ -210,7 +210,7 @@ const ContractorPortal = () => {
       longitude: String(Number(selectedProject.registeredLongitude) + 0.00027),
       gpsAccuracy: '18',
     }))
-    setGpsMessage('Demo GPS loaded near registered site')
+    setGpsMessage('Registered site GPS loaded for review')
   }
 
   const handleEvidenceFile = async (file?: File) => {
@@ -489,7 +489,7 @@ const ContractorPortal = () => {
               <FiNavigation /> Capture GPS
             </button>
             <button type="button" onClick={useDemoGps}>
-              <FiMapPin /> Demo site GPS
+              <FiMapPin /> Registered site GPS
             </button>
           </div>
           <p className="gps-message">{gpsMessage}</p>

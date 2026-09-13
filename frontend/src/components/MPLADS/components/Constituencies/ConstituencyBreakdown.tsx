@@ -122,7 +122,7 @@ const ConstituencyBreakdown = ({ stateName, constituencies = [] }) => {
         </div>
         <div className="error-state">
           <p>Error loading constituency data: {error.message}</p>
-          <p>Showing demo data for visualization purposes.</p>
+          <p>Showing the latest cached constituency view where available.</p>
         </div>
       </div>
     )

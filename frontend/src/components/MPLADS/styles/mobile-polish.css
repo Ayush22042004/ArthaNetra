@@ -50,8 +50,6 @@
   .leaderboard-toolbar,
   .field-monitoring-panel,
   .shortlist-panel,
-  .coverage-panel,
-  .public-source-panel,
   .contractor-shell,
   .contractor-panel,
   .report-panel,
@@ -101,8 +99,6 @@
   .quick-actions,
   .leaderboard-summary,
   .field-command-grid,
-  .coverage-grid,
-  .public-source-grid,
   .project-gallery,
   .contractor-project-grid,
   .contractor-metrics,
@@ -180,14 +176,12 @@
   .metric-period,
   .contractor-profile span,
   .contractor-stats span,
-  .score-components span,
-  .coverage-grid small {
+  .score-components span {
     overflow-wrap: anywhere;
   }
 
   .metric-value,
   .rank-block strong,
-  .coverage-grid strong,
   .leaderboard-summary strong {
     font-size: clamp(1.35rem, 8vw, 1.9rem) !important;
   }
@@ -253,8 +247,6 @@
   .leaderboard-toolbar,
   .field-monitoring-panel,
   .shortlist-panel,
-  .coverage-panel,
-  .public-source-panel,
   .chart-container,
   .info-card {
     padding: 12px !important;

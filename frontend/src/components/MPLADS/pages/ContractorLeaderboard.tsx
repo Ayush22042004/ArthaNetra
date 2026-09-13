@@ -14,7 +14,6 @@ import {
 import {
   Contractor,
   ContractorShortlistItem,
-  ContractorSourceCoverage,
   FieldMonitoring,
   contractorsAPI,
 } from '../../../services/api/contractors'
@@ -29,24 +28,6 @@ const componentLabels: Record<string, string> = {
   lowAnomalyRate: 'Low review rate',
 }
 
-const publicContractorSources = [
-  {
-    name: 'CPWD Enlistment',
-    use: 'Civil contractor class, category, and eligibility signal',
-    status: 'Public registry alignment',
-  },
-  {
-    name: 'GeM / CPPP',
-    use: 'Tender participation, award, and procurement history signal',
-    status: 'Integration candidate',
-  },
-  {
-    name: 'State PWD Lists',
-    use: 'Regional contractor eligibility and district experience signal',
-    status: 'State-wise connector',
-  },
-]
-
 const ContractorLeaderboard = () => {
   const [contractors, setContractors] = useState<Contractor[]>([])
   const [filterOptions, setFilterOptions] = useState<Contractor[]>([])
@@ -57,7 +38,6 @@ const ContractorLeaderboard = () => {
   const [district, setDistrict] = useState('')
   const [specialization, setSpecialization] = useState('')
   const [monitoring, setMonitoring] = useState<FieldMonitoring | null>(null)
-  const [coverage, setCoverage] = useState<ContractorSourceCoverage | null>(null)
   const [mapFeed, setMapFeed] = useState<any>(null)
   const [selectedProjectId, setSelectedProjectId] = useState('field-road-ward-5')
   const [shortlist, setShortlist] = useState<ContractorShortlistItem[]>([])
@@ -66,14 +46,13 @@ const ContractorLeaderboard = () => {
     try {
       setError('')
       setLoading(true)
-      const [response, monitoringResponse, mapResponse, coverageResponse] = await Promise.all([
+      const [response, monitoringResponse, mapResponse] = await Promise.all([
         contractorsAPI.getLeaderboard({
           district: nextFilters.district || undefined,
           specialization: nextFilters.specialization || undefined,
         }),
         contractorsAPI.getFieldMonitoring(),
         contractorsAPI.getMapProjects(),
-        contractorsAPI.getSourceCoverage(),
       ])
       setContractors(response.data || [])
       if (!nextFilters.district && !nextFilters.specialization) {
@@ -81,7 +60,6 @@ const ContractorLeaderboard = () => {
       }
       setMonitoring(monitoringResponse.data)
       setMapFeed(mapResponse.data)
-      setCoverage(coverageResponse.data)
       setAppliedFilters(nextFilters)
       setFiltersAppliedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
       if (!selectedProjectId && mapResponse.data?.projects?.[0]) {
@@ -270,64 +248,6 @@ const ContractorLeaderboard = () => {
         </article>
       </section>
 
-      <section className="coverage-panel">
-        <div className="leaderboard-section-title">
-          <span>SIH data readiness</span>
-          <strong>Official MPLADS plus live field evidence</strong>
-        </div>
-        <div className="coverage-grid">
-          <article>
-            <span>Official MPLADS-backed works</span>
-            <strong>{coverage?.officialMpladsProjects || 0}</strong>
-            <small>
-              {coverage?.sourceCollections?.worksRecommended || 0} recommended /{' '}
-              {coverage?.sourceCollections?.worksCompleted || 0} completed
-            </small>
-          </article>
-          <article>
-            <span>Live evidence updates</span>
-            <strong>{coverage?.evidence?.totalUpdates || 0}</strong>
-            <small>{coverage?.evidence?.gpsVerifiedUpdates || 0} GPS verified submissions</small>
-          </article>
-          <article>
-            <span>Media evidence</span>
-            <strong>
-              {(coverage?.evidence?.imageEvidence || 0) + (coverage?.evidence?.videoEvidence || 0)}
-            </strong>
-            <small>
-              {coverage?.evidence?.imageEvidence || 0} image / {coverage?.evidence?.videoEvidence || 0} video
-            </small>
-          </article>
-          <article>
-            <span>Coordinate fallbacks marked</span>
-            <strong>{coverage?.coordinates?.stateCentroidFallback || 0}</strong>
-            <small>Shown wherever MPLADS lacks exact site GPS</small>
-          </article>
-        </div>
-        <p>{coverage?.officialDataBoundary}</p>
-      </section>
-
-      <section className="public-source-panel">
-        <div className="leaderboard-section-title">
-          <span>Public contractor data alignment</span>
-          <strong>Future-ready official registry connectors</strong>
-        </div>
-        <div className="public-source-grid">
-          {publicContractorSources.map(source => (
-            <article key={source.name}>
-              <strong>{source.name}</strong>
-              <p>{source.use}</p>
-              <span>{source.status}</span>
-            </article>
-          ))}
-        </div>
-        <p>
-          Current demo contractor history is seeded and then updated by live field submissions.
-          Production can enrich it with CPWD enlistment, GeM/CPPP procurement records, and state
-          PWD contractor registries where public access is available.
-        </p>
-      </section>
-
       <section className="leaderboard-summary">
         <article>
           <FiShield />
@@ -358,8 +278,8 @@ const ContractorLeaderboard = () => {
         </article>
         <article>
           <FiBarChart2 />
-          <span>Demo history</span>
-          <strong>{contractors.filter(contractor => contractor.demoHistoricalData).length}</strong>
+          <span>Evidence profiles</span>
+          <strong>{contractors.length}</strong>
         </article>
       </section>
 
