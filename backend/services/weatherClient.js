@@ -44,6 +44,39 @@ const classifyWeatherRisk = payload => {
   }
 }
 
+const buildFallbackWeatherSignal = ({ latitude, longitude, label, statusCode }) => ({
+  label: label || 'Selected MPLADS site',
+  latitude,
+  longitude,
+  current: {
+    temperature_2m: null,
+    precipitation: null,
+    rain: null,
+    wind_speed_10m: null,
+    weather_code: null,
+  },
+  daily: {
+    precipitation_probability_max: [],
+    precipitation_sum: [],
+  },
+  units: {
+    temperature: 'C',
+    precipitation: 'mm',
+    wind: 'km/h',
+  },
+  risk: {
+    level: 'MEDIUM',
+    reason:
+      statusCode === 429
+        ? 'Weather review: live provider rate limit reached, so field teams should manually verify local conditions before milestone release.'
+        : 'Weather review: live provider is unavailable, so field teams should manually verify local conditions before milestone release.',
+  },
+  cached: false,
+  providerUnavailable: true,
+  providerStatusCode: statusCode || null,
+  fetchedAt: new Date().toISOString(),
+})
+
 const fetchWeatherForecast = async ({ lat, lng, label }) => {
   const latitude = toNumber(lat)
   const longitude = toNumber(lng)
@@ -74,12 +107,30 @@ const fetchWeatherForecast = async ({ lat, lng, label }) => {
     timezone: 'auto',
   })
 
-  const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`)
+  let response
+  try {
+    response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`)
+  } catch (error) {
+    const fallback = buildFallbackWeatherSignal({ latitude, longitude, label })
+    weatherCache.set(key, {
+      cachedAt: Date.now(),
+      data: fallback,
+    })
+    return fallback
+  }
 
   if (!response.ok) {
-    const error = new Error('Weather provider request failed')
-    error.statusCode = response.status
-    throw error
+    const fallback = buildFallbackWeatherSignal({
+      latitude,
+      longitude,
+      label,
+      statusCode: response.status,
+    })
+    weatherCache.set(key, {
+      cachedAt: Date.now(),
+      data: fallback,
+    })
+    return fallback
   }
 
   const payload = await response.json()

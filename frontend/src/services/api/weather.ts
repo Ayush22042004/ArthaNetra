@@ -25,6 +25,8 @@ export interface WeatherSignal {
     reason: string
   }
   cached: boolean
+  providerUnavailable?: boolean
+  providerStatusCode?: number | null
   fetchedAt: string
 }
 
