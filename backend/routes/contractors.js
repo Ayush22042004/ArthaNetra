@@ -3,6 +3,8 @@ const crypto = require('crypto')
 const { connectToDatabase } = require('../utils/database')
 
 const router = express.Router()
+let contractorDemoDataReady = false
+let contractorDemoDataPromise = null
 
 const verificationWeights = {
   geo: 0.35,
@@ -801,13 +803,13 @@ const verifyImage = (project, photoUrl = '', mediaType = 'url', mediaName = '') 
 
   if (String(photoUrl).startsWith('data:image')) {
     return {
-      status: 'REVIEW_REQUIRED',
-      score: 62,
+      status: 'SUSPICIOUS',
+      score: 18,
       detectedWorkType: project.category,
-      detectedStage: 'Uploaded image requires visual review',
-      confidence: 62,
+      detectedStage: 'Raw upload requires visual review',
+      confidence: 18,
       summary:
-        'Uploaded image evidence is present, but category match cannot be confirmed without multimodal analysis.',
+        'Raw uploaded image evidence cannot be category-verified without a vision model, so it is flagged for manual review.',
       issues: ['Strict visual category match unavailable for raw uploaded image'],
     }
   }
@@ -888,6 +890,151 @@ const verifyProgress = (project, submittedProgress) => {
     expectedProgress: clamp(project.expectedProgress),
     issues,
   }
+}
+
+const buildDuplicateCheck = duplicateMatch =>
+  duplicateMatch
+    ? {
+        status: 'REVIEW_REQUIRED',
+        score: 35,
+        duplicateDetected: true,
+        similarity: 96,
+        matchedUpdateId: duplicateMatch.updateId,
+        summary: 'This evidence image appears to have been submitted before for this project.',
+      }
+    : {
+        status: 'UNIQUE',
+        score: 100,
+        duplicateDetected: false,
+        similarity: 0,
+        matchedUpdateId: null,
+        summary: 'No matching earlier evidence asset was found for this project.',
+      }
+
+const calculateOverallVerificationScore = ({
+  geoVerification,
+  imageVerification,
+  duplicateCheck,
+  progressVerification,
+}) =>
+  Math.round(
+    geoVerification.score * verificationWeights.geo +
+      imageVerification.score * verificationWeights.image +
+      duplicateCheck.score * verificationWeights.duplicate +
+      progressVerification.score * verificationWeights.progress
+  )
+
+const buildStrictEvidenceChecks = (project, update, duplicateMatch = null) => {
+  const geoVerification = verifyGeo(project, update)
+  const imageVerification = verifyImage(
+    project,
+    update.photoUrl,
+    update.mediaType || 'url',
+    update.mediaName || ''
+  )
+  const progressVerification = verifyProgress(project, update.progressPercent)
+  const duplicateCheck = buildDuplicateCheck(duplicateMatch)
+  const overallVerificationScore = calculateOverallVerificationScore({
+    geoVerification,
+    imageVerification,
+    duplicateCheck,
+    progressVerification,
+  })
+  const verificationStatus = getStrictVerificationStatus(overallVerificationScore, {
+    geoVerification,
+    imageVerification,
+    duplicateCheck,
+    progressVerification,
+  })
+
+  return {
+    geoVerification,
+    imageVerification,
+    duplicateCheck,
+    progressVerification,
+    overallVerificationScore,
+    verificationStatus,
+    strictVerificationVersion: 2,
+  }
+}
+
+const rescoreExistingWorkUpdates = async db => {
+  const projectsCollection = db.collection('contractor_projects')
+  const updatesCollection = db.collection('work_updates')
+  const updates = await updatesCollection.find({}).sort({ serverUploadTime: 1 }).toArray()
+  if (!updates.length) return
+
+  const projectIds = [...new Set(updates.map(update => update.projectId).filter(Boolean))]
+  const projects = await projectsCollection.find({ projectId: { $in: projectIds } }).toArray()
+  const projectMap = new Map(projects.map(project => [project.projectId, project]))
+  const seenFingerprints = new Map()
+  const latestByProject = new Map()
+
+  for (const update of updates) {
+    const project = projectMap.get(update.projectId)
+    if (!project) continue
+
+    const fingerprint = update.evidenceFingerprint || evidenceFingerprint(update.photoUrl || '')
+    const duplicateKey = `${update.projectId}:${fingerprint}`
+    const duplicateMatch = fingerprint ? seenFingerprints.get(duplicateKey) || null : null
+    const strictChecks = buildStrictEvidenceChecks(
+      project,
+      {
+        ...update,
+        latitude: update.latitude,
+        longitude: update.longitude,
+        gpsAccuracy: update.gpsAccuracy,
+        accuracy: update.gpsAccuracy,
+      },
+      duplicateMatch
+    )
+
+    await updatesCollection.updateOne(
+      { _id: update._id },
+      {
+        $set: {
+          evidenceFingerprint: fingerprint,
+          ...strictChecks,
+          rescoredAt: new Date(),
+          reviewLanguage:
+            'Potential anomalies require manual review. The system does not make fraud findings.',
+        },
+      }
+    )
+
+    if (fingerprint && !seenFingerprints.has(duplicateKey)) {
+      seenFingerprints.set(duplicateKey, { updateId: update.updateId })
+    }
+
+    const currentLatest = latestByProject.get(update.projectId)
+    if (
+      !currentLatest ||
+      new Date(update.serverUploadTime || 0) > new Date(currentLatest.serverUploadTime || 0)
+    ) {
+      latestByProject.set(update.projectId, {
+        ...update,
+        evidenceFingerprint: fingerprint,
+        ...strictChecks,
+      })
+    }
+  }
+
+  await Promise.all(
+    [...latestByProject.entries()].map(([projectId, update]) =>
+      projectsCollection.updateOne(
+        { projectId },
+        {
+          $set: {
+            progressPercent: update.progressPercent,
+            lastUpdateAt: update.serverUploadTime,
+            latestVerificationStatus: update.verificationStatus,
+            latestVerificationScore: update.overallVerificationScore,
+            latestPhotoUrl: update.photoUrl,
+          },
+        }
+      )
+    )
+  )
 }
 
 const ensureDemoData = async db => {
@@ -1121,11 +1268,25 @@ const ensureDemoData = async db => {
       )
     })
   )
+
+  await rescoreExistingWorkUpdates(db)
 }
 
 const withDemoData = async () => {
   const db = await connectToDatabase()
-  await ensureDemoData(db)
+  if (!contractorDemoDataReady) {
+    if (!contractorDemoDataPromise) {
+      contractorDemoDataPromise = ensureDemoData(db)
+    }
+
+    try {
+      await contractorDemoDataPromise
+      contractorDemoDataReady = true
+    } catch (error) {
+      contractorDemoDataPromise = null
+      throw error
+    }
+  }
   return db
 }
 
@@ -1547,39 +1708,25 @@ router.post('/projects/:projectId/updates', async (req, res, next) => {
     const duplicateMatch = await db
       .collection('work_updates')
       .findOne({ projectId: project.projectId, evidenceFingerprint: fingerprint })
-    const geoVerification = verifyGeo(project, body)
-    const imageVerification = verifyImage(project, photoUrl, mediaType, mediaName)
-    const progressVerification = verifyProgress(project, progressPercent)
-    const duplicateCheck = duplicateMatch
-      ? {
-          status: 'REVIEW_REQUIRED',
-          score: 35,
-          duplicateDetected: true,
-          similarity: 96,
-          matchedUpdateId: duplicateMatch.updateId,
-          summary: 'This evidence image appears to have been submitted before for this project.',
-        }
-      : {
-          status: 'UNIQUE',
-          score: 100,
-          duplicateDetected: false,
-          similarity: 0,
-          matchedUpdateId: null,
-          summary: 'No matching earlier evidence asset was found for this project.',
-        }
-
-    const overallVerificationScore = Math.round(
-      geoVerification.score * verificationWeights.geo +
-        imageVerification.score * verificationWeights.image +
-        duplicateCheck.score * verificationWeights.duplicate +
-        progressVerification.score * verificationWeights.progress
-    )
-    const verificationStatus = getStrictVerificationStatus(overallVerificationScore, {
+    const {
       geoVerification,
       imageVerification,
       duplicateCheck,
       progressVerification,
-    })
+      overallVerificationScore,
+      verificationStatus,
+      strictVerificationVersion,
+    } = buildStrictEvidenceChecks(
+      project,
+      {
+        ...body,
+        photoUrl,
+        mediaType,
+        mediaName,
+        progressPercent,
+      },
+      duplicateMatch
+    )
     const now = new Date()
     const update = {
       updateId: `upd-${now.getTime()}-${crypto.randomBytes(3).toString('hex')}`,
@@ -1602,6 +1749,7 @@ router.post('/projects/:projectId/updates', async (req, res, next) => {
       progressVerification,
       overallVerificationScore,
       verificationStatus,
+      strictVerificationVersion,
       reviewLanguage: 'Potential anomalies require manual review. The system does not make fraud findings.',
     }
 

@@ -594,7 +594,18 @@ const ContractorPortal = () => {
                   <span>{formatDate(update.serverUploadTime)}</span>
                   <strong>{update.progressPercent}% progress - {update.overallVerificationScore}/100</strong>
                   <p>{update.remarks || 'No remarks added.'}</p>
-                  <small className={statusClass(update.verificationStatus)}>{update.verificationStatus}</small>
+                  <div className="timeline-verification-tags">
+                    <small className={statusClass(update.verificationStatus)}>{update.verificationStatus}</small>
+                    <small className={statusClass(update.imageVerification?.status)}>
+                      Image {update.imageVerification?.score || 0}
+                    </small>
+                    <small className={statusClass(update.geoVerification?.status)}>
+                      GPS {update.geoVerification?.score || 0}
+                    </small>
+                    <small className={statusClass(update.duplicateCheck?.status)}>
+                      Duplicate {update.duplicateCheck?.score || 0}
+                    </small>
+                  </div>
                 </div>
               </article>
             ))

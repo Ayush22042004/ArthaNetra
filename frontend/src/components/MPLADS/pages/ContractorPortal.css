@@ -555,6 +555,26 @@
   font-weight: 650;
 }
 
+.timeline-verification-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.timeline-verification-tags small {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 1.45rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #eef6f8;
+  font-size: 0.68rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .contractor-shell {
   min-height: 26rem;
   padding: 2rem;
