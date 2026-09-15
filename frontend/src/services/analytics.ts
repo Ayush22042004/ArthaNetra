@@ -225,7 +225,7 @@ class AnalyticsService {
     try {
       localStorage.setItem('analytics_opt_out', 'true')
       this.isEnabled = false
-      console.log('Analytics disabled')
+      if (import.meta.env.DEV) console.info('Analytics disabled')
     } catch (error) {
       console.warn('Failed to opt out of analytics:', error.message)
     }
@@ -236,7 +236,7 @@ class AnalyticsService {
     try {
       localStorage.removeItem('analytics_opt_out')
       this.init() // Re-initialize
-      console.log('Analytics enabled')
+      if (import.meta.env.DEV) console.info('Analytics enabled')
     } catch (error) {
       console.warn('Failed to opt into analytics:', error.message)
     }

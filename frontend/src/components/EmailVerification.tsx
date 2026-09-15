@@ -26,14 +26,14 @@ const EmailVerification = () => {
     const handleVerification = async () => {
       try {
         hasVerified.current = true
-        console.log('Starting email verification with token:', token)
         const response = await verifyEmail(token)
-        console.log('Verification response:', response)
         setStatus('success')
         setMessage(response.message || 'Email verified successfully!')
       } catch (error) {
-        console.error('Verification error:', error)
-        console.error('Error response:', error.response)
+        if (import.meta.env.DEV) {
+          console.error('Verification error:', error)
+          console.error('Error response:', error.response)
+        }
         setStatus('error')
         setMessage(
           error.response?.data?.message ||

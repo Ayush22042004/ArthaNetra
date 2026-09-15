@@ -7,17 +7,17 @@ const { analyzeWorks } = require('../services/ai/riskEngine')
 
 router.get('/risk-analysis', cacheMiddleware(30 * 60), async (req, res, next) => {
   try {
-    console.log('\n========== AI RISK ANALYSIS ==========')
+    console.info('\n========== AI RISK ANALYSIS ==========')
 
     // Get native MongoDB database
     const db = await connectToDatabase()
 
-    console.log('Connected database:', db.databaseName)
+    console.info('Connected database:', db.databaseName)
 
     // List ALL collections
     const collections = await db.listCollections().toArray()
 
-    console.log(
+    console.info(
       'Available collections:',
       collections.map(c => c.name)
     )
@@ -35,9 +35,9 @@ router.get('/risk-analysis', cacheMiddleware(30 * 60), async (req, res, next) =>
       .collection('expenditures')
       .countDocuments()
 
-    console.log('works_completed count:', completedCount)
-    console.log('works_recommended count:', recommendedCount)
-    console.log('expenditures count:', expenditureCount)
+    console.info('works_completed count:', completedCount)
+    console.info('works_recommended count:', recommendedCount)
+    console.info('expenditures count:', expenditureCount)
 
     // Fetch works
     const [completedWorks, recommendedWorks] = await Promise.all([
@@ -52,8 +52,8 @@ router.get('/risk-analysis', cacheMiddleware(30 * 60), async (req, res, next) =>
         .toArray(),
     ])
 
-    console.log('Fetched completed works:', completedWorks.length)
-    console.log('Fetched recommended works:', recommendedWorks.length)
+    console.info('Fetched completed works:', completedWorks.length)
+    console.info('Fetched recommended works:', recommendedWorks.length)
 
     // Combine works
     const allWorks = [
@@ -145,7 +145,7 @@ router.get('/risk-analysis', cacheMiddleware(30 * 60), async (req, res, next) =>
       })
       .toArray()
 
-    console.log(
+    console.info(
       'Successful expenditure records:',
       expenditures.length
     )
@@ -189,11 +189,11 @@ router.get('/risk-analysis', cacheMiddleware(30 * 60), async (req, res, next) =>
     // Run AI Risk Engine
     const analysis = analyzeWorks(worksForAnalysis)
 
-    console.log('Analysis complete')
-    console.log('Total works:', analysis.totalWorks)
-    console.log('High risk:', analysis.highRiskCount)
-    console.log('Medium risk:', analysis.mediumRiskCount)
-    console.log('Low risk:', analysis.lowRiskCount)
+    console.info('Analysis complete')
+    console.info('Total works:', analysis.totalWorks)
+    console.info('High risk:', analysis.highRiskCount)
+    console.info('Medium risk:', analysis.mediumRiskCount)
+    console.info('Low risk:', analysis.lowRiskCount)
 
     res.json({
       success: true,

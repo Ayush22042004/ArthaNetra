@@ -87,10 +87,8 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       timestamp: new Date().toISOString(),
     }
 
-    console.log('Error Report:', errorInfo)
-
-    // Show user feedback
-    alert('Error report has been logged. Thank you for helping us improve!')
+    sessionStorage.setItem('arthanetra_error_report', JSON.stringify(errorInfo))
+    window.location.href = '/mplads/report'
   }
 
   render() {

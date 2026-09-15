@@ -228,6 +228,44 @@ const MPList = () => {
     }
   }, [overviewData, allMPs, mps, totalMPs])
 
+  const exportVisibleMPs = () => {
+    const exportedAt = new Date().toISOString()
+    const payload = {
+      exportedAt,
+      period: periodLabel,
+      filters: {
+        search: debouncedSearchQuery || null,
+        performance: filterRange,
+        house: uiHouse,
+        sortBy,
+        sortOrder,
+      },
+      count: filteredMPs.length,
+      mps: filteredMPs.map(mp => ({
+        name: mp.name || mp.mpName,
+        constituency: mp.constituency,
+        state: mp.state,
+        house: mp.house,
+        allocated: mp.allocatedAmount || mp.totalAllocated || 0,
+        expenditure: mp.totalExpenditure || 0,
+        utilizationPercentage: mp.utilizationPercentage || 0,
+        worksCompleted: mp.completedWorksCount || mp.totalWorksCompleted || 0,
+      })),
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json;charset=utf-8',
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `arthanetra-mp-list-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    showInfoToast(`Exported ${filteredMPs.length} MP records`)
+  }
+
   // Memoized static UI blocks
   const NationalStatsDisplay = useMemo(() => {
     return function NationalStatsDisplay({ stats }) {
@@ -513,14 +551,14 @@ const MPList = () => {
             <Button
               variant="outline"
               className="download-btn gap-2"
-              disabled
-              aria-describedby="export-disabled-tooltip"
+              onClick={exportVisibleMPs}
+              disabled={!filteredMPs.length}
             >
               <FiDownload />
               Export
             </Button>
             <InfoTooltip
-              content="Export functionality coming soon. This feature will allow you to download MP data in various formats."
+              content="Download the currently visible MP list as a JSON report."
               position="left"
               size="small"
             />
