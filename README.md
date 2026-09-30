@@ -55,7 +55,7 @@ corepack enable
 Install dependencies from the project root:
 
 ```powershell
-cd E:\clone\empowered-indian
+cd E:\Arthanetra\empowered-indian
 pnpm install
 ```
 
@@ -115,7 +115,7 @@ Restart the frontend after changing `frontend/.env`.
 Terminal 1, backend:
 
 ```powershell
-cd E:\clone\empowered-indian
+cd E:\Arthanetra\empowered-indian
 pnpm --dir backend dev
 ```
 
@@ -124,7 +124,7 @@ Backend runs at `http://127.0.0.1:8080`.
 Terminal 2, frontend:
 
 ```powershell
-cd E:\clone\empowered-indian
+cd E:\Arthanetra\empowered-indian
 pnpm --dir frontend dev -- --host 127.0.0.1 --port 5176
 ```
 
