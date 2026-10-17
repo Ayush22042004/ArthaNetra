@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { projectMetrics } from '../../../utils/projectMetrics'
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   FiArrowLeft,
@@ -113,17 +114,13 @@ const MPDetail = () => {
   // Calculate project statistics from MP summary data
   const projectStats = {
     completed: mp.completedWorksCount || 0,
-    ongoing: Math.max(0, (mp.recommendedWorksCount || 0) - (mp.completedWorksCount || 0)),
+    ongoing: mp.recommendedWorksCount || 0,
     recommended: mp.recommendedWorksCount || 0,
-    total: mp.recommendedWorksCount || 0,
+    total: (mp.recommendedWorksCount || 0) + (mp.completedWorksCount || 0),
   }
 
   // Use backend-calculated completion rate, or calculate it correctly as fallback
-  const completionRate =
-    mp.completionRate ||
-    ((mp.recommendedWorksCount || 0) > 0
-      ? Math.min(((mp.completedWorksCount || 0) / (mp.recommendedWorksCount || 0)) * 100, 100)
-      : 0)
+  const { completionRate } = projectMetrics(projectStats.completed, projectStats.ongoing)
 
   // Payment gap analysis (same logic as MPCard)
   const hasPaymentGap = mp => {
@@ -515,7 +512,7 @@ const MPDetail = () => {
               </div>
               <div className="stat-label">Works Completed</div>
               <div className="stat-subtitle">
-                out of {formatNumber(mp.recommendedWorksCount || 0)} recommended
+                out of {formatNumber(projectStats.total)} tracked works
               </div>
             </div>
           </div>

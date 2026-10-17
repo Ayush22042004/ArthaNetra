@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import RouteAnalytics from './components/common/RouteAnalytics'
+import { StandaloneAppearance } from './components/common/AppearanceMenu'
 import Layout from './components/MPLADS/components/Layout/Layout'
 import './App.css'
 import './components/MPLADS/styles/mobile-polish.css'
@@ -21,6 +22,7 @@ const Compare = lazy(() => import('./components/MPLADS/pages/Compare'))
 const Report = lazy(() => import('./components/MPLADS/pages/Report'))
 const RiskAnalysis = lazy(() => import('./components/MPLADS/pages/RiskAnalysis'))
 const IntelligenceMap = lazy(() => import('./components/MPLADS/pages/IntelligenceMap'))
+const Investigations = lazy(() => import('./components/MPLADS/pages/Investigations'))
 const ContractorLogin = lazy(() => import('./components/MPLADS/pages/ContractorLogin'))
 const ContractorPortal = lazy(() => import('./components/MPLADS/pages/ContractorPortal'))
 const ContractorLeaderboard = lazy(() => import('./components/MPLADS/pages/ContractorLeaderboard'))
@@ -59,13 +61,15 @@ function App() {
         <Router>
           <div className="app">
             <RouteAnalytics />
+            <StandaloneAppearance />
             <Toaster
               position="top-right"
               toastOptions={{
                 duration: 4000,
                 style: {
-                  background: '#363636',
-                  color: '#fff',
+                  background: 'var(--bg-card)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-color)',
                 },
               }}
             />
@@ -90,10 +94,7 @@ function App() {
                 element={withRouteFallback(<UnsubscribeSuccess />)}
               />
               <Route path="/login" element={withRouteFallback(<Login />)} />
-              <Route
-                path="/contractor-login"
-                element={withRouteFallback(<ContractorLogin />)}
-              />
+              <Route path="/contractor-login" element={withRouteFallback(<ContractorLogin />)} />
 
               {/* MPLADS Routes */}
               <Route
@@ -137,6 +138,8 @@ function App() {
                   path="contractors"
                   element={withRouteFallback(<ContractorLeaderboard />, 'route-fallback--mplads')}
                 />
+                <Route path="investigations" element={withRouteFallback(<Investigations />)} />
+                <Route path="investigations/:caseId" element={withRouteFallback(<Investigations />)} />
                 <Route
                   path="contractor-portal"
                   element={withRouteFallback(<ContractorPortal />, 'route-fallback--mplads')}

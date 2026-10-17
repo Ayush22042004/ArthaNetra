@@ -1,41 +1,32 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   FiAlertTriangle,
   FiCamera,
   FiCheckCircle,
   FiClock,
-  FiMapPin,
   FiNavigation,
   FiRefreshCw,
   FiShield,
   FiUploadCloud,
 } from 'react-icons/fi'
-import {
-  ContractorProject,
-  WorkUpdate,
-  contractorsAPI,
-} from '../../../services/api/contractors'
+import { ContractorProject, WorkUpdate, contractorsAPI } from '../../../services/api/contractors'
 import { CONTRACTOR_SESSION_KEY } from './ContractorLogin'
 import './ContractorPortal.css'
+import VisionAssessment from '../components/Common/VisionAssessment'
+import { verificationOutcome } from '../../../utils/verificationOutcome'
+import FieldTestingAccess from '../components/Common/FieldTestingAccess'
 
-const sampleEvidence = [
-  'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&q=85',
-  'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&q=85',
-  'https://images.unsplash.com/photo-1581094288338-2314dddb7ece?w=1200&q=85',
-]
-
-const verificationSteps = [
-  'Checking project location',
-  'Analyzing site evidence',
-  'Checking previous images',
-  'Validating progress movement',
-  'Generating verification score',
-]
+const verificationSteps = ['Processing uploaded evidence']
 
 const statusClass = (status?: string) => {
   const normalized = String(status || '').toLowerCase()
-  if (normalized.includes('verified') || normalized.includes('match') || normalized.includes('unique')) {
+  if (normalized.includes('mismatch') || normalized.includes('suspicious')) return 'is-danger'
+  if (
+    normalized.includes('verified') ||
+    normalized.includes('match') ||
+    normalized.includes('unique')
+  ) {
     return 'is-good'
   }
   if (normalized.includes('mismatch') || normalized.includes('suspicious')) return 'is-danger'
@@ -93,20 +84,54 @@ const ContractorPortal = () => {
   const [error, setError] = useState('')
   const [result, setResult] = useState<any>(null)
   const [gpsMessage, setGpsMessage] = useState('GPS not captured yet')
-  const [mediaMessage, setMediaMessage] = useState('Use a site photo or paste an evidence URL.')
+  const [mediaMessage, setMediaMessage] = useState('')
+  const [gpsCapturedAt, setGpsCapturedAt] = useState('')
+  const [clientCaptureTime, setClientCaptureTime] = useState('')
+  const [testToken, setTestToken] = useState('')
+  const [testExpiresAt, setTestExpiresAt] = useState('')
+  const [testPassword, setTestPassword] = useState('')
+  const [testAccessError, setTestAccessError] = useState('')
+  const [testingBusy, setTestingBusy] = useState(false)
+  const [visionStatus, setVisionStatus] = useState<any>(null)
+  const activeContext = useRef({ testToken, selectedProjectId })
+  activeContext.current = { testToken, selectedProjectId }
+
+  useEffect(() => {
+    if (!testToken) return
+    const timer = window.setTimeout(
+      () => setTestToken(''),
+      Math.max(0, Date.parse(testExpiresAt) - Date.now())
+    )
+    return () => window.clearTimeout(timer)
+  }, [testToken, testExpiresAt])
   const [form, setForm] = useState({
-    photoUrl: sampleEvidence[0],
-    mediaType: 'url' as 'image' | 'video' | 'url',
-    mediaName: 'sample-site-evidence.jpg',
+    photoUrl: '',
+    mediaType: 'image' as 'image' | 'video' | 'url',
+    mediaName: '',
     latitude: '',
     longitude: '',
-    gpsAccuracy: '18',
+    gpsAccuracy: '',
     progressPercent: '52',
-    remarks: 'Road base preparation completed for the next stretch. Site team has started edge compaction.',
+    remarks: '',
   })
 
   const projects: ContractorProject[] = dashboard?.projects || []
   const contractorId = session?.contractor?.contractorId
+  useEffect(() => {
+    let current = true
+    if (contractorId)
+      contractorsAPI
+        .getVisionStatus()
+        .then((response: any) => {
+          if (current) setVisionStatus(response.data)
+        })
+        .catch(() => {
+          if (current) setVisionStatus(null)
+        })
+    return () => {
+      current = false
+    }
+  }, [contractorId, result?.update?.updateId])
   const selectedProject = useMemo(
     () => projects.find(project => project.projectId === selectedProjectId) || projects[0],
     [projects, selectedProjectId]
@@ -122,19 +147,14 @@ const ContractorPortal = () => {
       setDashboard(response.data)
       const firstProject = response.data?.projects?.[0]
       if (!selectedProjectId && firstProject) setSelectedProjectId(firstProject.projectId)
-    } catch (apiError) {
+    } catch (apiError: any) {
+      if (apiError.response?.status === 401) {
+        localStorage.removeItem(CONTRACTOR_SESSION_KEY)
+        navigate('/mplads/contractor-login', { replace: true })
+      }
       setError('Contractor intelligence service is unavailable.')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const loadTimeline = async (projectId: string) => {
-    try {
-      const response = await contractorsAPI.getTimeline(projectId)
-      setTimeline(response.data?.updates || [])
-    } catch {
-      setTimeline([])
     }
   }
 
@@ -165,27 +185,56 @@ const ContractorPortal = () => {
   }, [contractorId])
 
   useEffect(() => {
-    if (selectedProjectId) loadTimeline(selectedProjectId)
-  }, [selectedProjectId])
+    let current = true
+    setTimeline([])
+    setResult(null)
+    setGpsCapturedAt('')
+    setClientCaptureTime('')
+    setForm(value => ({
+      ...value,
+      photoUrl: '',
+      mediaName: '',
+      latitude: '',
+      longitude: '',
+      gpsAccuracy: '',
+    }))
+    setGpsMessage('GPS not captured yet')
+    if (selectedProjectId)
+      (testToken
+        ? contractorsAPI.getTestingTimeline(selectedProjectId, testToken)
+        : contractorsAPI.getTimeline(selectedProjectId)
+      )
+        .then((response: any) => {
+          if (current) setTimeline(response.data?.updates || [])
+        })
+        .catch(() => {
+          if (current) setTimeline([])
+        })
+    return () => {
+      current = false
+    }
+  }, [selectedProjectId, testToken])
 
   useEffect(() => {
     if (!selectedProject) return
     setForm(current => ({
       ...current,
-      progressPercent: String(Math.max(selectedProject.progressPercent + 6, selectedProject.expectedProgress)),
+      progressPercent: String(Math.min(100, selectedProject.progressPercent || 0)),
     }))
   }, [selectedProject])
 
   const captureGps = () => {
     if (!navigator.geolocation) {
-      setGpsMessage('Browser GPS is unavailable. Registered site GPS loaded.')
-      useDemoGps()
+      setGpsMessage(
+        'GPS is unavailable in this browser. Use a GPS-enabled device over HTTPS or localhost.'
+      )
       return
     }
 
     setGpsMessage('Requesting browser GPS...')
     navigator.geolocation.getCurrentPosition(
       position => {
+        setGpsCapturedAt(new Date(position.timestamp).toISOString())
         setForm(current => ({
           ...current,
           latitude: String(position.coords.latitude),
@@ -195,31 +244,89 @@ const ContractorPortal = () => {
         setGpsMessage(`GPS captured with ${Math.round(position.coords.accuracy)}m accuracy`)
       },
       () => {
-        setGpsMessage('GPS permission blocked. Registered site GPS loaded.')
-        useDemoGps()
+        setGpsCapturedAt('')
+        setForm(current => ({ ...current, latitude: '', longitude: '', gpsAccuracy: '' }))
+        setGpsMessage('GPS could not be captured. Allow location access and retry.')
       },
-      { enableHighAccuracy: true, timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     )
   }
 
-  const useDemoGps = () => {
-    if (!selectedProject) return
-    setForm(current => ({
-      ...current,
-      latitude: String(Number(selectedProject.registeredLatitude) + 0.00035),
-      longitude: String(Number(selectedProject.registeredLongitude) + 0.00027),
-      gpsAccuracy: '18',
-    }))
-    setGpsMessage('Registered site GPS loaded for review')
+  const unlockTesting = async () => {
+    if (!testPassword || testingBusy || submitting) return
+    setTestingBusy(true)
+    setTestAccessError('')
+    setError('')
+    try {
+      const response = await contractorsAPI.unlockTesting(testPassword)
+      setTestExpiresAt(response.data.expiresAt)
+      setTestToken(response.data.token)
+    } catch (apiError: any) {
+      setTestAccessError(apiError.response?.data?.error || 'Testing mode could not be unlocked.')
+    } finally {
+      setTestPassword('')
+      setTestingBusy(false)
+    }
+  }
+
+  const loadTestSample = async (kind: string) => {
+    if (!selectedProject || !testToken) return
+    setTestingBusy(true)
+    setError('')
+    setResult(null)
+    try {
+      const response = await contractorsAPI.getTestingSample(
+        selectedProject.projectId,
+        testToken,
+        kind
+      )
+      if (
+        activeContext.current.testToken !== testToken ||
+        activeContext.current.selectedProjectId !== selectedProject.projectId
+      )
+        return
+      const sample = response.data
+      if (kind === 'gps')
+        setForm(current => ({
+          ...current,
+          latitude: String(sample.latitude),
+          longitude: String(sample.longitude),
+          gpsAccuracy: String(sample.gpsAccuracy),
+        }))
+      else
+        setForm({
+          photoUrl: sample.photoUrl,
+          mediaType: 'image',
+          mediaName: sample.mediaName,
+          latitude: String(sample.latitude),
+          longitude: String(sample.longitude),
+          gpsAccuracy: String(sample.gpsAccuracy),
+          progressPercent: String(sample.progressPercent),
+          remarks: sample.remarks,
+        })
+      setGpsCapturedAt(sample.gpsCapturedAt)
+      if (kind !== 'gps') setClientCaptureTime(sample.clientCaptureTime)
+      setGpsMessage('TEST ONLY: simulated site GPS, not device location')
+      if (kind !== 'gps') setMediaMessage(sample.sampleSource)
+    } catch (apiError: any) {
+      setError(apiError.response?.data?.error || 'Sample could not be loaded.')
+      if (apiError.response?.status === 403) setTestToken('')
+    } finally {
+      setTestingBusy(false)
+    }
   }
 
   const handleEvidenceFile = async (file?: File) => {
     if (!file) return
+    setForm(current => ({ ...current, photoUrl: '', mediaName: '' }))
+    setClientCaptureTime('')
+    setResult(null)
 
-    if (file.type.startsWith('image/')) {
+    if (['image/jpeg', 'image/png', 'image/webp'].includes(file.type) && file.size <= 5000000) {
       try {
         setMediaMessage('Compressing image evidence for verification...')
         const compressed = await compressImageFile(file)
+        setClientCaptureTime(new Date(file.lastModified).toISOString())
         setForm(current => ({
           ...current,
           photoUrl: compressed,
@@ -228,23 +335,15 @@ const ContractorPortal = () => {
         }))
         setMediaMessage(`Image evidence ready: ${file.name}`)
       } catch {
-        setMediaMessage('Could not process this image. Try another file or use a URL.')
+        setMediaMessage('Could not process this image. Try another photograph.')
       }
       return
     }
 
-    if (file.type.startsWith('video/')) {
-      setForm(current => ({
-        ...current,
-        photoUrl: `video-evidence://${encodeURIComponent(file.name)}:${file.size}`,
-        mediaType: 'video',
-        mediaName: file.name,
-      }))
-      setMediaMessage(`Video reference attached: ${file.name}. Prototype stores metadata for review.`)
-      return
-    }
-
-    setMediaMessage('Unsupported evidence type. Use image or video.')
+    setForm(current => ({ ...current, photoUrl: '', mediaName: '' }))
+    setMediaMessage(
+      'Use a JPEG, PNG or WebP photograph smaller than 5 MB. Video verification is not supported.'
+    )
   }
 
   const submitUpdate = async (event: FormEvent) => {
@@ -252,11 +351,11 @@ const ContractorPortal = () => {
     if (!selectedProject) return
     if (!form.latitude || !form.longitude) {
       setError('GPS is mandatory. Capture GPS before submitting evidence.')
-      setGpsMessage('GPS is mandatory. Capture browser GPS or use demo site GPS.')
+      setGpsMessage('GPS is mandatory. Capture browser GPS.')
       return
     }
     if (!form.photoUrl) {
-      setError('Evidence media is mandatory. Upload a site image/video or choose a sample.')
+      setError('Upload a site photograph before submitting.')
       return
     }
 
@@ -265,11 +364,7 @@ const ContractorPortal = () => {
       setSubmitting(true)
       setVerificationStep(0)
       setResult(null)
-      for (let index = 0; index < verificationSteps.length; index += 1) {
-        setVerificationStep(index)
-        await new Promise(resolve => window.setTimeout(resolve, 220))
-      }
-      const response = await contractorsAPI.submitUpdate(selectedProject.projectId, {
+      const payload = {
         contractorId,
         photoUrl: form.photoUrl,
         mediaType: form.mediaType,
@@ -279,13 +374,27 @@ const ContractorPortal = () => {
         gpsAccuracy: Number(form.gpsAccuracy),
         progressPercent: Number(form.progressPercent),
         remarks: form.remarks,
-        clientCaptureTime: new Date().toISOString(),
-      })
+        clientCaptureTime,
+        gpsCapturedAt,
+      }
+      const response = testToken
+        ? await contractorsAPI.submitTestingUpdate(selectedProject.projectId, payload, testToken)
+        : await contractorsAPI.submitUpdate(selectedProject.projectId, payload)
+      if (
+        activeContext.current.testToken !== testToken ||
+        activeContext.current.selectedProjectId !== selectedProject.projectId
+      )
+        return
       setResult(response.data)
       setTimeline(response.data?.timeline || [])
-      await loadDashboard()
-    } catch {
-      setError('Evidence update failed. Please check backend and MongoDB.')
+      if (!testToken) await loadDashboard()
+    } catch (apiError: any) {
+      if (testToken && apiError.response?.status === 403) setTestToken('')
+      setError(
+        apiError.response?.data?.error ||
+          apiError.response?.data?.message ||
+          'Evidence update failed. Try again.'
+      )
     } finally {
       setVerificationStep(-1)
       setSubmitting(false)
@@ -333,8 +442,8 @@ const ContractorPortal = () => {
           <span className="contractor-kicker">Contractor field portal</span>
           <h1>Good morning, {contractor.companyName || 'ABC Infra'}</h1>
           <p>
-            Submit geo-tagged evidence, get an AI verification score, and keep project
-            timelines current for field review.
+            Submit geo-tagged evidence, get an AI verification score, and keep project timelines
+            current for field review.
           </p>
         </div>
         <div className="contractor-session-card">
@@ -344,7 +453,9 @@ const ContractorPortal = () => {
             <small>/ 100</small>
           </div>
           <Link to="/mplads/contractors">Authority view</Link>
-          <button type="button" onClick={logout}>Logout</button>
+          <button type="button" onClick={logout}>
+            Logout
+          </button>
         </div>
       </section>
 
@@ -387,9 +498,13 @@ const ContractorPortal = () => {
                 className={`assigned-card${project.projectId === selectedProject?.projectId ? ' is-active' : ''}`}
                 onClick={() => setSelectedProjectId(project.projectId)}
               >
-                <span className={`risk-pill ${project.riskLevel.toLowerCase()}`}>{project.riskLevel}</span>
+                <span className={`risk-pill ${project.riskLevel.toLowerCase()}`}>
+                  {project.riskLevel}
+                </span>
                 <strong>{project.title}</strong>
-                <small>{project.district}, {project.state}</small>
+                <small>
+                  {project.district}, {project.state}
+                </small>
                 {project.source === 'official_mplads_work' && (
                   <small className="official-source-badge">
                     Official MPLADS {project.sourceCollection?.replace('works_', '')} work
@@ -404,7 +519,9 @@ const ContractorPortal = () => {
                 <div className="progress-track">
                   <span style={{ width: `${Math.min(project.progressPercent, 100)}%` }} />
                 </div>
-                <em>{project.progressPercent}% complete - expected {project.expectedProgress}%</em>
+                <em>
+                  {project.progressPercent}% complete - expected {project.expectedProgress}%
+                </em>
               </button>
             ))}
           </div>
@@ -418,7 +535,10 @@ const ContractorPortal = () => {
 
           <label>
             Project
-            <select value={selectedProjectId} onChange={event => setSelectedProjectId(event.target.value)}>
+            <select
+              value={selectedProjectId}
+              onChange={event => setSelectedProjectId(event.target.value)}
+            >
               {projects.map(project => (
                 <option value={project.projectId} key={project.projectId}>
                   {project.title}
@@ -427,34 +547,41 @@ const ContractorPortal = () => {
             </select>
           </label>
 
+          {visionStatus && (
+            <p className="vision-provider-state" role="status">
+              <FiCamera /> Image analysis: {visionStatus.state.replace(/_/g, ' ')}
+            </p>
+          )}
+          <FieldTestingAccess
+            unlocked={Boolean(testToken)}
+            expiresAt={testExpiresAt}
+            password={testPassword}
+            error={testAccessError}
+            busy={testingBusy}
+            submitting={submitting}
+            onPasswordChange={value => {
+              setTestPassword(value)
+              setTestAccessError('')
+            }}
+            onUnlock={unlockTesting}
+            onLock={() => {
+              setTestToken('')
+              setTestAccessError('')
+            }}
+            onSample={loadTestSample}
+          />
+
           <label>
             Evidence media
             <input
               type="file"
-              accept="image/*,video/*"
+              key={`${selectedProjectId}:${Boolean(testToken)}`}
+              accept="image/jpeg,image/png,image/webp"
               capture="environment"
               onChange={event => handleEvidenceFile(event.target.files?.[0])}
             />
           </label>
 
-          <label>
-            Evidence URL / processed media reference
-            <div className="photo-input">
-              <FiCamera />
-              <input
-                value={form.photoUrl}
-                onChange={event =>
-                  setForm(current => ({
-                    ...current,
-                    photoUrl: event.target.value,
-                    mediaType: 'url',
-                    mediaName: 'external-evidence-url',
-                  }))
-                }
-                placeholder="Upload media or paste site image URL"
-              />
-            </div>
-          </label>
           <p className="gps-message">{mediaMessage}</p>
 
           {form.photoUrl && form.mediaType !== 'video' && (
@@ -464,32 +591,9 @@ const ContractorPortal = () => {
             </div>
           )}
 
-          <div className="sample-evidence">
-            {sampleEvidence.map(url => (
-              <button
-                type="button"
-                key={url}
-                onClick={() =>
-                  setForm(current => ({
-                    ...current,
-                    photoUrl: url,
-                    mediaType: 'url',
-                    mediaName: 'sample-site-evidence.jpg',
-                  }))
-                }
-                className={form.photoUrl === url ? 'is-selected' : ''}
-              >
-                Use sample
-              </button>
-            ))}
-          </div>
-
           <div className="gps-row">
             <button type="button" onClick={captureGps}>
               <FiNavigation /> Capture GPS
-            </button>
-            <button type="button" onClick={useDemoGps}>
-              <FiMapPin /> Registered site GPS
             </button>
           </div>
           <p className="gps-message">{gpsMessage}</p>
@@ -516,7 +620,9 @@ const ContractorPortal = () => {
               min="0"
               max="100"
               value={form.progressPercent}
-              onChange={event => setForm(current => ({ ...current, progressPercent: event.target.value }))}
+              onChange={event =>
+                setForm(current => ({ ...current, progressPercent: event.target.value }))
+              }
             />
           </label>
 
@@ -531,8 +637,16 @@ const ContractorPortal = () => {
 
           {error && <p className="form-alert">{error}</p>}
 
-          <button type="submit" className="submit-evidence" disabled={submitting || !form.latitude || !form.longitude}>
-            {submitting ? 'Verifying evidence...' : 'Submit for AI verification'}
+          <button
+            type="submit"
+            className="submit-evidence"
+            disabled={submitting || !form.latitude || !form.longitude}
+          >
+            {submitting
+              ? 'Verifying evidence...'
+              : testToken
+                ? 'Run isolated test verification'
+                : 'Submit for AI verification'}
           </button>
         </form>
       </section>
@@ -540,10 +654,7 @@ const ContractorPortal = () => {
       {submitting && (
         <section className="verification-steps">
           {verificationSteps.map((step, index) => (
-            <div
-              key={step}
-              className={index <= verificationStep ? 'is-active' : ''}
-            >
+            <div key={step} className={index <= verificationStep ? 'is-active' : ''}>
               <FiCheckCircle />
               <span>{step}</span>
             </div>
@@ -551,22 +662,32 @@ const ContractorPortal = () => {
         </section>
       )}
 
+      {verification?.imageVerification && (
+        <VisionAssessment assessment={verification.imageVerification} />
+      )}
       {verification && (
         <section className="verification-panel">
-          <div>
-            <span>Verification score</span>
-            <strong>{verification.score}</strong>
-            <small>{verification.status}</small>
+          <div className="verification-outcome">
+            <span>
+              {result?.testing ? 'TEST ONLY - Verification outcome' : 'Verification outcome'}
+            </span>
+            <strong>{verificationOutcome(verification.score, verification.status)}</strong>
+            <small>
+              {verification.status.replace(/_/g, ' ')}
+              {verification.score == null
+                ? ' - Overall score unavailable until remaining checks are assessed.'
+                : ` - Composite score ${verification.score}/100`}
+            </small>
           </div>
           {[
-            ['Location', verification.geoVerification],
+            [result?.testing ? 'Test location' : 'Location', verification.geoVerification],
             ['Image match', verification.imageVerification],
             ['Duplicate check', verification.duplicateCheck],
             ['Progress', verification.progressVerification],
           ].map(([label, item]: any) => (
             <article key={label} className={statusClass(item?.status)}>
               <span>{label}</span>
-              <strong>{item?.score || 0}/100</strong>
+              <strong>{item?.score == null ? 'Unassessed' : `${item.score}/100`}</strong>
               <small>{item?.summary || item?.status}</small>
             </article>
           ))}
@@ -575,7 +696,7 @@ const ContractorPortal = () => {
 
       <section className="timeline-panel">
         <div className="section-heading">
-          <span>Project execution timeline</span>
+          <span>{testToken ? 'Isolated test timeline' : 'Project execution timeline'}</span>
           <small>{timeline.length} evidence events</small>
         </div>
         <div className="timeline-list">
@@ -587,15 +708,27 @@ const ContractorPortal = () => {
                 ) : (
                   <div className="timeline-media-placeholder">
                     <FiCamera />
-                    <span>{update.mediaType === 'video' ? 'Video evidence' : 'Evidence attached'}</span>
+                    <span>
+                      {update.mediaType === 'video' ? 'Video evidence' : 'Evidence attached'}
+                    </span>
                   </div>
                 )}
                 <div>
                   <span>{formatDate(update.serverUploadTime)}</span>
-                  <strong>{update.progressPercent}% progress - {update.overallVerificationScore}/100</strong>
+                  <strong>
+                    {update.progressPercent}% declared progress -{' '}
+                    {update.overallVerificationScore == null
+                      ? 'Unassessed'
+                      : `${update.overallVerificationScore}/100`}
+                  </strong>
+                  {update.strictVerificationVersion !== 3 && (
+                    <small>Legacy automated result, not revalidated by vision analysis</small>
+                  )}
                   <p>{update.remarks || 'No remarks added.'}</p>
                   <div className="timeline-verification-tags">
-                    <small className={statusClass(update.verificationStatus)}>{update.verificationStatus}</small>
+                    <small className={statusClass(update.verificationStatus)}>
+                      {update.verificationStatus}
+                    </small>
                     <small className={statusClass(update.imageVerification?.status)}>
                       Image {update.imageVerification?.score || 0}
                     </small>
@@ -610,7 +743,9 @@ const ContractorPortal = () => {
               </article>
             ))
           ) : (
-            <p className="empty-timeline">No field evidence has been submitted for this project yet.</p>
+            <p className="empty-timeline">
+              No field evidence has been submitted for this project yet.
+            </p>
           )}
         </div>
       </section>

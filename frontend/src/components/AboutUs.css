@@ -3,7 +3,7 @@
    ========================================================================== */
 .about-us-page {
   min-height: 100vh;
-  background: hsl(0 0% 100%);
+  background: var(--theme-surface, hsl(0 0% 100%));
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -30,7 +30,7 @@
 .back-link {
   position: relative;
   display: inline-block;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   text-decoration: none;
   font-family: 'Outfit', sans-serif;
   font-weight: 500;
@@ -45,7 +45,7 @@
 }
 
 .back-link:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   transform: none;
 }
 
@@ -54,7 +54,7 @@
   font-size: 3rem;
   font-weight: 600;
   font-style: italic;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   margin: 0;
   background: none;
   -webkit-background-clip: unset;
@@ -75,7 +75,7 @@
 .about-content {
   text-align: left;
   line-height: 1.7;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-family: 'Outfit', sans-serif;
 }
 
@@ -93,18 +93,18 @@
   font-size: 1.375rem;
   font-style: italic;
   line-height: 1.6;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   background: transparent;
   padding: 0 0 0 1.5rem;
   border-radius: 0;
-  border-left: 3px solid hsl(38 92% 50%);
+  border-left: 3px solid var(--theme-border, hsl(38 92% 50%));
   margin: 0;
   font-weight: 500;
 }
 
 .about-section h2 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-size: 1.625rem;
   font-weight: 600;
   margin-bottom: 1.25rem;
@@ -125,7 +125,7 @@
 
 .about-section h3 {
   font-family: 'Outfit', sans-serif;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-size: 1.0625rem;
   font-weight: 600;
   margin: 1.5rem 0 0.75rem 0;
@@ -133,7 +133,7 @@
 
 .about-section p {
   margin-bottom: 1rem;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-size: 0.9375rem;
   line-height: 1.7;
   font-weight: 400;
@@ -147,7 +147,7 @@
 
 .about-section li {
   margin-bottom: 0.625rem;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-size: 0.9375rem;
   line-height: 1.6;
   padding-left: 1.25rem;
@@ -165,14 +165,14 @@
 }
 
 .about-section a {
-  color: hsl(221.2 83.2% 53.3%);
+  color: var(--theme-blue-text, hsl(221.2 83.2% 53.3%));
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .about-section a:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   text-decoration: none;
 }
 
@@ -194,7 +194,7 @@
   left: 1.5rem;
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: 5rem;
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   line-height: 1;
   opacity: 0.4;
 }
@@ -215,15 +215,15 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 0;
   margin-top: 1.5rem;
-  border: 1px solid hsl(214.3 31.8% 91.4%);
+  border: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
 }
 
 .approach-item {
-  background: white;
+  background: var(--theme-surface, white);
   padding: 2rem;
   border-radius: 0;
   border: none;
-  border-right: 1px solid hsl(214.3 31.8% 91.4%);
+  border-right: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
   box-shadow: none;
   transition: background 0.2s ease;
 }
@@ -233,14 +233,14 @@
 }
 
 .approach-item:hover {
-  background: hsl(210 40% 98%);
+  background: var(--theme-surface-soft, hsl(210 40% 98%));
   transform: none;
   box-shadow: none;
 }
 
 .approach-item h3 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   margin-top: 0;
   margin-bottom: 0.75rem;
   font-size: 1.125rem;
@@ -249,7 +249,7 @@
 
 .approach-item p {
   margin: 0;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   line-height: 1.6;
   font-size: 0.875rem;
 }
@@ -266,7 +266,7 @@
   padding: 0.625rem 0 0.625rem 1rem;
   background: transparent;
   border-radius: 0;
-  border-left: 2px solid hsl(38 92% 50%);
+  border-left: 2px solid var(--theme-border, hsl(38 92% 50%));
 }
 
 /* CTA */
@@ -303,7 +303,7 @@
 
 .cta-link {
   background: hsl(38 92% 50%);
-  color: hsl(222.2 84% 4.9%) !important;
+  color: var(--theme-text, hsl(222.2 84% 4.9%)) !important;
   padding: 0.5rem 1rem;
   border-radius: 0;
   text-decoration: none;
@@ -329,19 +329,19 @@
 .about-footer {
   margin-top: 56px;
   padding-top: 2rem;
-  border-top: 1px solid hsl(214.3 31.8% 91.4%);
+  border-top: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
   text-align: left;
 }
 
 .about-footer p {
   font-size: 0.9375rem;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
 }
 
 .back-link-bottom {
   display: inline-block;
   margin-top: 1rem;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   text-decoration: none;
   font-weight: 500;
   font-size: 0.8125rem;
@@ -353,7 +353,7 @@
 }
 
 .back-link-bottom:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   transform: none;
 }
 
@@ -386,7 +386,7 @@
 
   .approach-item {
     border-right: none;
-    border-bottom: 1px solid hsl(214.3 31.8% 91.4%);
+    border-bottom: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
   }
 
   .approach-item:last-child {

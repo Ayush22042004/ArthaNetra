@@ -1,5 +1,14 @@
 import apiClient from './apiClient'
 
+const fieldAuth = () => {
+  try {
+    const session = JSON.parse(localStorage.getItem('arthanetra_contractor_session') || '{}')
+    return { Authorization: `Bearer ${session.token || ''}` }
+  } catch {
+    return {}
+  }
+}
+
 export type ContractorProject = {
   projectId: string
   contractorId: string
@@ -46,6 +55,7 @@ export type Contractor = {
 }
 
 export type WorkUpdate = {
+  strictVerificationVersion?: number
   updateId: string
   projectId: string
   contractorId: string
@@ -98,6 +108,7 @@ export type FieldUpdatePayload = {
   progressPercent: number
   remarks: string
   clientCaptureTime: string
+  gpsCapturedAt: string
 }
 
 export type ContractorShortlistItem = {
@@ -157,6 +168,29 @@ export type ContractorDemoAccount = {
 }
 
 export const contractorsAPI = {
+  getVisionStatus() {
+    return apiClient.get('/contractors/vision/status', { headers: fieldAuth(), skipErrorToast: true })
+  },
+  unlockTesting(password: string) {
+    return apiClient.post('/contractors/testing/unlock', { password }, { headers: fieldAuth() })
+  },
+  getTestingSample(projectId: string, token: string, kind = 'construction') {
+    return apiClient.get(`/contractors/testing/projects/${projectId}/sample`, {
+      params: { kind },
+      headers: { ...fieldAuth(), 'X-Field-Test-Token': token },
+    })
+  },
+  getTestingTimeline(projectId: string, token: string) {
+    return apiClient.get(`/contractors/testing/projects/${projectId}/updates`, {
+      headers: { ...fieldAuth(), 'X-Field-Test-Token': token },
+    })
+  },
+  submitTestingUpdate(projectId: string, payload: FieldUpdatePayload, token: string) {
+    return apiClient.post(`/contractors/testing/projects/${projectId}/updates`, payload, {
+      headers: { ...fieldAuth(), 'X-Field-Test-Token': token },
+      timeout: 60000,
+    })
+  },
   getDemoAccounts() {
     return apiClient.get('/contractors/demo-accounts')
   },
@@ -166,11 +200,17 @@ export const contractorsAPI = {
   },
 
   getDashboard(contractorId = 'abc-infra') {
-    return apiClient.get('/contractors/dashboard', { params: { contractorId } })
+    return apiClient.get('/contractors/dashboard', {
+      params: { contractorId },
+      headers: fieldAuth(),
+    })
   },
 
   getProjects(contractorId?: string) {
-    return apiClient.get('/contractors/projects', { params: contractorId ? { contractorId } : {} })
+    return apiClient.get('/contractors/projects', {
+      params: contractorId ? { contractorId } : {},
+      headers: fieldAuth(),
+    })
   },
 
   getLeaderboard(params?: { district?: string; specialization?: string }) {
@@ -194,10 +234,13 @@ export const contractorsAPI = {
   },
 
   getTimeline(projectId: string) {
-    return apiClient.get(`/contractors/projects/${projectId}/timeline`)
+    return apiClient.get(`/contractors/projects/${projectId}/timeline`, { headers: fieldAuth() })
   },
 
   submitUpdate(projectId: string, payload: FieldUpdatePayload) {
-    return apiClient.post(`/contractors/projects/${projectId}/updates`, payload)
+    return apiClient.post(`/contractors/projects/${projectId}/updates`, payload, {
+      headers: fieldAuth(),
+      timeout: 60000,
+    })
   },
 }

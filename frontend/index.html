@@ -4,12 +4,34 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7fafc" />
     <script>
+      try {
+        var preference = localStorage.getItem('arthanetra-theme')
+        var darkTheme = preference === 'dark' ||
+          (preference === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.theme = darkTheme ? 'dark' : 'light'
+        document.documentElement.classList.toggle('dark', darkTheme)
+        document.documentElement.style.colorScheme = darkTheme ? 'dark' : 'light'
+      } catch {
+        document.documentElement.dataset.theme = 'light'
+        document.documentElement.classList.remove('dark')
+        document.documentElement.style.colorScheme = 'light'
+      }
       document.documentElement.dataset.initialRoute = location.pathname.startsWith('/mplads')
         ? 'mplads'
         : 'home'
     </script>
     <style>
+      html[data-theme='dark'] .initial-page-shell {
+        color: #edf3f1;
+        background: #101618;
+      }
+      html[data-theme='dark'] .initial-page-shell p { color: #b0bec1; }
+      html[data-theme='dark'] .initial-page-shell__card {
+        background: #191f22;
+        border-color: #354247;
+      }
       .initial-page-shell {
         min-height: 100vh;
         padding: 72px 16px 40px;

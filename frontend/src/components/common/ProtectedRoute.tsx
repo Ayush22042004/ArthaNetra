@@ -30,13 +30,13 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
           style={{
             width: '40px',
             height: '40px',
-            border: '3px solid #e2e8f0',
-            borderTop: '3px solid #3b82f6',
+            border: "3px solid var(--theme-border, #e2e8f0)",
+            borderTop: "3px solid var(--theme-border, #3b82f6)",
             borderRadius: '50%',
             animation: 'spin 1s linear infinite',
           }}
         ></div>
-        <p style={{ color: '#64748b' }}>Checking authentication...</p>
+        <p style={{ color: "var(--theme-muted, #64748b)" }}>Checking authentication...</p>
       </div>
     )
   }
@@ -65,13 +65,13 @@ const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps)
         <div
           style={{
             fontSize: '4rem',
-            color: '#ef4444',
+            color: "var(--theme-red-text, #ef4444)",
           }}
         >
           🚫
         </div>
-        <h2 style={{ color: '#1e293b', marginBottom: '0.5rem' }}>Access Denied</h2>
-        <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
+        <h2 style={{ color: "var(--theme-text, #1e293b)", marginBottom: '0.5rem' }}>Access Denied</h2>
+        <p style={{ color: "var(--theme-muted, #64748b)", marginBottom: '1.5rem' }}>
           You don't have permission to access this area. Admin privileges required.
         </p>
         <Button

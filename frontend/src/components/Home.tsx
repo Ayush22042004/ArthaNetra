@@ -15,6 +15,7 @@ import {
 import './Home.css'
 import ArthaNetraLogo from './common/ArthaNetraLogo'
 import SiteFooter from './common/SiteFooter'
+import AppearanceMenu from './common/AppearanceMenu'
 import { Button } from '@/components/ui/button'
 
 const metrics = [
@@ -64,10 +65,13 @@ function Home() {
       <section className="home-hero" aria-label="ArthaNetra overview">
         <div className="home-hero__nav">
           <ArthaNetraLogo />
-          <Link to="/mplads" className="home-hero__nav-link">
-            Open Platform
-            <ArrowRight size={16} />
-          </Link>
+          <div className="home-nav-actions">
+            <AppearanceMenu />
+            <Link to="/mplads" className="home-hero__nav-link">
+              Open Platform
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
 
         <div className="home-hero__grid">
@@ -78,9 +82,9 @@ function Home() {
             </span>
             <h1>Track works, funds, risk, and payments from one control room.</h1>
             <p>
-              ArthaNetra helps teams inspect MPLADS work records, fund movement, contractor
-              signals, weather risk, map location, and payment history without jumping across
-              scattered screens.
+              ArthaNetra helps teams inspect MPLADS work records, fund movement, contractor signals,
+              weather risk, map location, and payment history without jumping across scattered
+              screens.
             </p>
             <div className="home-actions">
               <Link to="/mplads">
@@ -134,8 +138,12 @@ function Home() {
                 <circle className="india-node india-node--medium" cx="248" cy="285" r="11" />
                 <g className="india-label">
                   <rect x="306" y="86" width="118" height="52" rx="12" />
-                  <text x="322" y="108">124 high risk</text>
-                  <text x="322" y="126">works flagged</text>
+                  <text x="322" y="108">
+                    124 high risk
+                  </text>
+                  <text x="322" y="126">
+                    works flagged
+                  </text>
                 </g>
               </svg>
             </div>
@@ -175,8 +183,8 @@ function Home() {
           <span>Workflows</span>
           <h2>Start from a work record, then move to evidence.</h2>
           <p>
-            Each module answers a practical monitoring question: what was sanctioned, what was
-            paid, where is the work, who is responsible, and what needs attention now?
+            Each module answers a practical monitoring question: what was sanctioned, what was paid,
+            where is the work, who is responsible, and what needs attention now?
           </p>
         </div>
 
@@ -204,8 +212,8 @@ function Home() {
             <span className="home-kicker home-kicker--dark">Monitoring model</span>
             <h2>From recommendation to verified completion.</h2>
             <p>
-              ArthaNetra keeps the story of every work connected: recommendation, sanction,
-              payment, milestone, map review, risk reason, and final verification.
+              ArthaNetra keeps the story of every work connected: recommendation, sanction, payment,
+              milestone, map review, risk reason, and final verification.
             </p>
           </div>
           <ul>

@@ -39,7 +39,9 @@ router.get('/sync-info', async (req, res) => {
       const diffHours = Math.round(diffMs / (1000 * 60 * 60))
       const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
 
-      if (diffHours < 24) {
+      if (diffMs <= 0) {
+        nextUpdateInfo = 'due now'
+      } else if (diffHours < 24) {
         nextUpdateInfo = `in ${diffHours} hours`
       } else if (diffDays === 1) {
         nextUpdateInfo = 'tomorrow'

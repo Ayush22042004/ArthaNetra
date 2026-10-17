@@ -1,5 +1,5 @@
 .navigation {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+  background: linear-gradient(135deg, rgb(var(--theme-surface-rgb, 255 255 255) / 0.95) 0%, rgb(var(--theme-surface-soft-rgb, 248 250 252) / 0.95) 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -27,7 +27,7 @@
 
 .nav-logo {
   text-decoration: none;
-  color: #1a1a1a;
+  color: var(--theme-text, #1a1a1a);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -166,14 +166,14 @@
 .nav-description {
   display: none;
   font-size: 0.75rem;
-  color: #718096;
+  color: var(--theme-muted, #718096);
   margin-top: 0.125rem;
 }
 
 /* Breadcrumb styles */
 .breadcrumb {
-  background-color: #f7fafc;
-  border-bottom: 1px solid #e2e8f0;
+  background-color: var(--theme-surface-soft, #f7fafc);
+  border-bottom: 1px solid var(--theme-border, #e2e8f0);
   padding: 0.75rem 0;
   position: sticky;
   top: 64px;
@@ -226,22 +226,22 @@
 }
 
 .breadcrumb-item a {
-  color: #4a5568;
+  color: var(--theme-muted, #4a5568);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .breadcrumb-item a:hover {
-  color: #2c5282;
+  color: var(--theme-muted, #2c5282);
 }
 
 .breadcrumb-separator {
-  color: #a0aec0;
+  color: var(--theme-muted, #a0aec0);
   margin: 0 0.25rem;
 }
 
 .breadcrumb-current {
-  color: #2c5282;
+  color: var(--theme-muted, #2c5282);
   font-weight: 500;
 }
 
@@ -256,7 +256,7 @@
     left: -100%;
     top: 64px;
     flex-direction: column;
-    background-color: white;
+    background-color: var(--theme-surface, white);
     width: min(92vw, 380px);
     height: calc(100vh - 64px);
     text-align: left;
@@ -280,7 +280,7 @@
     padding: 1.25rem 1.5rem;
     border-radius: 0;
     min-height: 60px;
-    border-bottom: 1px solid #f7fafc;
+    border-bottom: 1px solid var(--theme-border, #f7fafc);
     transition: all 0.2s ease;
   }
 
@@ -290,17 +290,17 @@
 
   .nav-item:hover,
   .nav-item:focus {
-    background-color: #f7fafc;
+    background-color: var(--theme-surface-soft, #f7fafc);
     transform: none;
     box-shadow: inset 4px 0 0 #2c5282;
   }
 
   .nav-item:active {
-    background-color: #e6f3ff;
+    background-color: var(--theme-surface-soft, #e6f3ff);
   }
 
   .nav-item-active {
-    background-color: #e6f3ff;
+    background-color: var(--theme-surface-soft, #e6f3ff);
     font-weight: 600;
     box-shadow: inset 4px 0 0 #2c5282;
   }
@@ -330,19 +330,19 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #718096;
-    background: #f7fafc;
-    border-bottom: 1px solid #e2e8f0;
+    color: var(--theme-muted, #718096);
+    background: var(--theme-surface-soft, #f7fafc);
+    border-bottom: 1px solid var(--theme-border, #e2e8f0);
   }
 
   .nav-group-primary .nav-group-label {
-    color: #2c5282;
-    background: #e6f3ff;
+    color: var(--theme-muted, #2c5282);
+    background: var(--theme-surface-soft, #e6f3ff);
   }
 
   .nav-group-utility .nav-group-label {
-    color: #718096;
-    background: #f9fafb;
+    color: var(--theme-muted, #718096);
+    background: var(--theme-surface, #f9fafb);
   }
 
   .nav-text {
@@ -524,23 +524,23 @@
 
 /* Focus indicators for keyboard navigation */
 .nav-item:focus {
-  outline: 2px solid #2c5282;
+  outline: 2px solid var(--theme-border, #2c5282);
   outline-offset: 2px;
 }
 
 .mobile-menu-toggle:focus {
-  outline: 2px solid #2c5282;
+  outline: 2px solid var(--theme-border, #2c5282);
   outline-offset: 2px;
 }
 
 /* Visual hierarchy improvements */
 .nav-logo h2 {
-  color: #1a1a1a;
+  color: var(--theme-text, #1a1a1a);
   font-size: 1.375rem;
 }
 
 .nav-tagline {
-  color: #2c5282;
+  color: var(--theme-muted, #2c5282);
   font-weight: 500;
 }
 
@@ -549,8 +549,8 @@
   position: sticky;
   top: 0;
   z-index: 900;
-  border-bottom: 1px solid rgba(216, 226, 235, 0.9);
-  background: rgba(247, 250, 252, 0.86);
+  border-bottom: 1px solid rgb(var(--theme-border-rgb, 216 226 235) / 0.9);
+  background: rgb(var(--theme-surface-soft-rgb, 247 250 252) / 0.86);
   backdrop-filter: blur(18px);
 }
 
@@ -560,7 +560,7 @@
 
 .intel-commandbar {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   gap: 18px;
   align-items: center;
   min-height: 72px;
@@ -579,7 +579,7 @@
   display: inline-flex;
   gap: 10px;
   align-items: center;
-  color: #071d3a;
+  color: var(--theme-text, #071d3a);
 }
 
 .arthanetra-logo__mark {
@@ -596,14 +596,14 @@
 }
 
 .arthanetra-logo__wordmark strong {
-  color: #071d3a;
+  color: var(--theme-text, #071d3a);
   font-size: 1.05rem;
   font-weight: 900;
   letter-spacing: 0.02em;
 }
 
 .arthanetra-logo__wordmark strong span {
-  color: #16803c;
+  color: var(--theme-green-text, #16803c);
 }
 
 .arthanetra-logo__wordmark em {
@@ -624,6 +624,10 @@
   gap: 6px;
   align-items: center;
   min-width: 0;
+}
+
+.intel-nav-link span {
+  white-space: nowrap;
 }
 
 .intel-nav-link {
@@ -652,7 +656,7 @@
 }
 
 .intel-nav-link.is-active {
-  border-color: rgba(15, 159, 143, 0.16);
+  border-color: rgb(var(--theme-border-rgb, 15 159 143) / 0.16);
   background: linear-gradient(135deg, rgba(15, 159, 143, 0.14), rgba(37, 99, 235, 0.08));
   color: var(--intel-primary-strong, #0b3f62);
 }
@@ -682,7 +686,7 @@
   appearance: none;
   border: 1px solid var(--intel-border, #d8e2eb);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--theme-surface, #ffffff);
   color: var(--intel-text, #102033);
   padding: 6px 30px 6px 10px;
   font-size: 0.82rem;
@@ -704,7 +708,7 @@
   place-items: center;
   border: 1px solid var(--intel-border, #d8e2eb);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--theme-surface, #ffffff);
   color: var(--intel-text, #102033);
   cursor: pointer;
 }
@@ -718,7 +722,7 @@
   display: flex;
   gap: 8px;
   align-items: center;
-  border-top: 1px solid rgba(216, 226, 235, 0.7);
+  border-top: 1px solid rgb(var(--theme-border-rgb, 216 226 235) / 0.7);
   padding: 9px clamp(16px, 3vw, 34px);
   color: var(--intel-muted, #617084);
   font-size: 0.78rem;
@@ -744,9 +748,9 @@
   }
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1120px) {
   .intel-commandbar {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
   }
 
   .intel-desktop-nav {

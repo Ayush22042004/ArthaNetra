@@ -1,5 +1,6 @@
 import { FiFileText, FiCheckCircle, FiClock, FiTrendingUp } from 'react-icons/fi'
 import './ProjectStatusCards.css'
+import { projectMetrics } from '../../../../utils/projectMetrics'
 
 type ProjectStatusData = {
   totalRecommended?: number
@@ -10,22 +11,23 @@ type ProjectStatusData = {
 const ProjectStatusCards = ({ data = {} }: { data?: ProjectStatusData }) => {
   const { totalRecommended = 0, totalInProgress = 0, totalCompleted = 0 } = data
 
+  const { total: totalTracked } = projectMetrics(totalCompleted, totalRecommended)
   const cards = [
     {
-      title: 'Recommended',
-      value: totalRecommended,
+      title: 'Tracked Works',
+      value: totalTracked,
       icon: <FiFileText />,
       color: 'blue',
       percentage: null,
-      description: 'Projects recommended by MPs',
+      description: 'Completed and outstanding works',
     },
     {
-      title: 'In Progress',
+      title: 'Pending Completion',
       value: totalInProgress,
       icon: <FiClock />,
       color: 'orange',
       percentage:
-        totalRecommended > 0 ? ((totalInProgress / totalRecommended) * 100).toFixed(1) : 0,
+        totalTracked > 0 ? ((totalInProgress / totalTracked) * 100).toFixed(1) : 0,
       description: 'Projects awaiting completion',
     },
     {
@@ -33,7 +35,7 @@ const ProjectStatusCards = ({ data = {} }: { data?: ProjectStatusData }) => {
       value: totalCompleted,
       icon: <FiCheckCircle />,
       color: 'green',
-      percentage: totalRecommended > 0 ? ((totalCompleted / totalRecommended) * 100).toFixed(1) : 0,
+      percentage: totalTracked > 0 ? ((totalCompleted / totalTracked) * 100).toFixed(1) : 0,
       description: 'Projects successfully completed',
     },
   ]

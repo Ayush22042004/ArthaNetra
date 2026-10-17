@@ -6,13 +6,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: hsl(0 0% 100%);
+  background: var(--theme-surface, hsl(0 0% 100%));
   padding: 20px;
 }
 
 .verification-container {
-  background: white;
-  border: 1px solid hsl(214.3 31.8% 91.4%);
+  background: var(--theme-surface, white);
+  border: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
   border-radius: 0;
   padding: 3rem;
   text-align: center;
@@ -30,15 +30,15 @@
 }
 
 .verification-content.loading .icon {
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
 }
 
 .verification-content.success .icon {
-  color: hsl(142 76% 36%);
+  color: var(--theme-green-text, hsl(142 76% 36%));
 }
 
 .verification-content.error .icon {
-  color: hsl(0 84.2% 60.2%);
+  color: var(--theme-red-text, hsl(0 84.2% 60.2%));
 }
 
 .spinning {
@@ -59,25 +59,25 @@
   margin: 0 0 1rem 0;
   font-size: 1.75rem;
   font-weight: 600;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
 }
 
 .verification-content p {
   margin: 0.5rem 0;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-family: 'Outfit', sans-serif;
   font-size: 0.9375rem;
   line-height: 1.6;
 }
 
 .verification-content a {
-  color: hsl(221.2 83.2% 53.3%);
+  color: var(--theme-blue-text, hsl(221.2 83.2% 53.3%));
   text-decoration: none;
   font-weight: 500;
 }
 
 .verification-content a:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
 }
 
 .verification-actions {
@@ -113,14 +113,14 @@
 }
 
 .verification-actions .btn-secondary {
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   background: transparent;
-  border: 1.5px solid hsl(214.3 31.8% 91.4%);
+  border: 1.5px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
 }
 
 .verification-actions .btn-secondary:hover {
-  border-color: hsl(221.2 83.2% 53.3%);
-  color: hsl(221.2 83.2% 53.3%);
+  border-color: var(--theme-border, hsl(221.2 83.2% 53.3%));
+  color: var(--theme-blue-text, hsl(221.2 83.2% 53.3%));
 }
 
 @media (max-width: 640px) {

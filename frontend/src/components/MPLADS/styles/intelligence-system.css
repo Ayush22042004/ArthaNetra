@@ -183,22 +183,22 @@
 .risk-badge.high,
 .risk-pill.high,
 .intel-status--danger {
-  background: #ffe4e6;
-  color: #be123c;
+  background: var(--theme-surface-soft, #ffe4e6);
+  color: var(--theme-red-text, #be123c);
 }
 
 .risk-badge.medium,
 .risk-pill.medium,
 .intel-status--warning {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--theme-blue-soft, #fef3c7);
+  color: var(--theme-amber-text, #92400e);
 }
 
 .risk-badge.low,
 .risk-pill.low,
 .intel-status--success {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--theme-surface-soft, #dcfce7);
+  color: var(--theme-green-text, #166534);
 }
 
 .mplads-layout table {
@@ -223,7 +223,7 @@
 .mplads-layout textarea {
   border: 1px solid var(--intel-border);
   border-radius: var(--intel-radius-sm);
-  background: #ffffff;
+  background: var(--theme-surface, #ffffff);
   color: var(--intel-text);
 }
 
@@ -248,7 +248,7 @@
   border-radius: var(--intel-radius) !important;
   background:
     radial-gradient(circle at top left, rgba(15, 159, 143, 0.12), transparent 22rem),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 252, 0.92)) !important;
+    linear-gradient(135deg, rgb(var(--theme-surface-rgb, 255 255 255) / 0.96), rgb(var(--theme-surface-soft-rgb, 247 250 252) / 0.92)) !important;
   padding: clamp(20px, 3vw, 32px) !important;
   box-shadow: var(--intel-shadow) !important;
   text-align: left !important;
@@ -325,7 +325,7 @@
   min-height: 42px;
   border-color: var(--intel-border) !important;
   border-radius: 8px !important;
-  background: #ffffff !important;
+  background: var(--theme-surface, #ffffff) !important;
   color: var(--intel-text) !important;
   box-shadow: none !important;
 }
@@ -389,7 +389,7 @@
 .states-table th,
 .mps-table th,
 .comparison-table th {
-  background: #f4f8fb !important;
+  background: var(--theme-surface-soft, #f4f8fb) !important;
 }
 
 .status-badge,

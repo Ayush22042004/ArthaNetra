@@ -10,6 +10,15 @@ React + Vite + TypeScript frontend for the ArthaNetra MPLADS intelligence platfo
 - General AI assistant wired to active page context.
 - Formspree-backed feedback and data issue forms.
 - Responsive product UI for dashboard, tables, cards, filters, maps, and reports.
+- Light, dark, and system appearance across the site, including charts, dialogs, and the contractor portal.
+
+## Appearance
+
+Open the sun/moon/monitor button in the header and choose Light, Dark, or System. Standalone pages have the same control at the top right.
+
+Light is the default for first-time visitors. The preference is saved in this browser, synchronized across tabs, and applied before the app renders. System mode follows operating-system changes. Satellite imagery and uploaded evidence retain their original colors in either theme. PDF exports keep their print colors.
+
+Theme tokens live in `src/theme.css`, state in `src/contexts/ThemeContext.tsx`, and the menu in `src/components/common/AppearanceMenu.tsx`. Existing light colors remain CSS variable fallbacks. ECharts uses `src/utils/chartTheme.ts` because canvas labels cannot inherit CSS colors.
 
 ## Requirements
 
@@ -21,17 +30,17 @@ React + Vite + TypeScript frontend for the ArthaNetra MPLADS intelligence platfo
 From the repository root:
 
 ```powershell
-cd E:\ArthaNetra
+cd E:\clone\empowered-indian
 pnpm install
 ```
 
 Start the frontend:
 
 ```powershell
-pnpm --dir frontend dev -- --host 127.0.0.1 --port 5176
+pnpm --dir frontend dev --host 127.0.0.1 --port 5173
 ```
 
-Open `http://127.0.0.1:5176`.
+Open `http://127.0.0.1:5173`.
 
 ## Environment Variables
 

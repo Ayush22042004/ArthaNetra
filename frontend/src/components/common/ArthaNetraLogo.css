@@ -2,7 +2,7 @@
   display: inline-flex;
   gap: 10px;
   align-items: center;
-  color: #071d3a;
+  color: var(--theme-text, #071d3a);
 }
 
 .arthanetra-logo__mark {
@@ -19,19 +19,19 @@
 }
 
 .arthanetra-logo__wordmark strong {
-  color: #071d3a;
+  color: var(--theme-text, #071d3a);
   font-size: 1.05rem;
   font-weight: 900;
   letter-spacing: 0.02em;
 }
 
 .arthanetra-logo__wordmark strong span {
-  color: #16803c;
+  color: var(--theme-green-text, #16803c);
 }
 
 .arthanetra-logo__wordmark em {
   margin-top: 4px;
-  color: #617084;
+  color: var(--theme-muted, #617084);
   font-size: 0.62rem;
   font-style: normal;
   font-weight: 700;

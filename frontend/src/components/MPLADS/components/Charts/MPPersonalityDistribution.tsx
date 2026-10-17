@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import ReactECharts from 'echarts-for-react'
+import ReactECharts from '../../../common/ThemedEChart'
 
 const MPPersonalityDistribution = ({ data, title = 'MP Personality Type Distribution' }) => {
   const [isMobile, setIsMobile] = useState(false)
@@ -172,7 +172,7 @@ const MPPersonalityDistribution = ({ data, title = 'MP Personality Type Distribu
         }}
       >
         <h3 style={{ margin: '0 0 1rem 0', fontSize: '18px', fontWeight: 'bold' }}>{title}</h3>
-        <div style={{ color: '#666', fontSize: '14px' }}>
+        <div style={{ color: "var(--theme-muted, #666)", fontSize: '14px' }}>
           <p style={{ margin: '0 0 0.5rem 0' }}>No MP performance data available</p>
           <p style={{ margin: '0', fontSize: '12px' }}>
             MP utilization data needed for personality analysis
@@ -207,10 +207,10 @@ const MPPersonalityDistribution = ({ data, title = 'MP Personality Type Distribu
         style={{
           marginTop: isMobile ? '5px' : '10px',
           padding: isMobile ? '8px' : '10px',
-          backgroundColor: '#f8f9fa',
+          backgroundColor: "var(--theme-surface-soft, #f8f9fa)",
           borderRadius: '6px',
           fontSize: isMobile ? '10px' : '11px',
-          color: '#666',
+          color: "var(--theme-muted, #666)",
           textAlign: 'center',
           lineHeight: '1.4',
         }}

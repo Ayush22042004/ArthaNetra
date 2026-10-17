@@ -149,7 +149,7 @@ if (process.env.NODE_ENV === 'production' || process.env.ENABLE_RATE_LIMIT === '
 // Body parsing middleware with enhanced security
 app.use(
   express.json({
-    limit: '3mb', // Allows compressed field evidence images without opening a large upload surface
+    limit: '7mb', // Base64 overhead for a validated image up to 5 MB.
     verify: (req, res, buf) => {
       // Log large payloads for monitoring
       if (buf.length > 100000) {

@@ -15,6 +15,7 @@ import {
   FiX,
 } from 'react-icons/fi'
 import ArthaNetraLogo from '../../../common/ArthaNetraLogo'
+import AppearanceMenu from '../../../common/AppearanceMenu'
 import { useFilters } from '../../../../contexts/FilterContext'
 import { mpladsAPI } from '../../../../services/api/mplads'
 import { formatTermOrdinal, normalizeTerms } from '../../../../utils/lsTerm'
@@ -42,6 +43,7 @@ const routeLabels: Record<string, string> = {
   '/mplads/mps': 'MPs',
   '/mplads/risk-analysis': 'AI Risk',
   '/mplads/contractors': 'Contractors',
+  '/mplads/investigations': 'Investigations',
   '/mplads/contractor-portal': 'Field Portal',
   '/mplads/contractor-login': 'Contractor Login',
   '/mplads/compare': 'Compare',
@@ -112,6 +114,7 @@ const NavigationSimple = () => {
   }, [])
 
   const pageLabel = useMemo(() => {
+    if (location.pathname.startsWith('/mplads/investigations/')) return 'Investigation Case'
     if (location.pathname.startsWith('/mplads/mps/') && location.pathname !== '/mplads/mps') {
       return 'MP Profile'
     }
@@ -187,6 +190,7 @@ const NavigationSimple = () => {
           </label>
         </div>
 
+        <AppearanceMenu />
         <button
           type="button"
           className="intel-menu-button"

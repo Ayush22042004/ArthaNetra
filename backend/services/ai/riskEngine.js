@@ -172,6 +172,7 @@ function analyzeWorks(works) {
   }
 
   const toResult = item => ({
+    sourceType: item.work.source === 'recommended' ? 'works_recommended' : 'works_completed',
     workId: item.work.workId || item.work.work_id || item.work._id,
 
     name:

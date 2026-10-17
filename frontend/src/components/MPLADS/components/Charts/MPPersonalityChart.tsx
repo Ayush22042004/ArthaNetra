@@ -1,4 +1,4 @@
-import ReactECharts from 'echarts-for-react'
+import ReactECharts from '../../../common/ThemedEChart'
 import { useState } from 'react'
 import { useResponsive } from '../../../../hooks/useMediaQuery'
 import { getResponsiveChartOptions } from '../../../../utils/chartHelpers'
@@ -273,7 +273,7 @@ const MPPersonalityChart = ({ data, title = 'Fund Utilization Pattern Analysis' 
         }}
       >
         <h3 style={{ margin: '0 0 1rem 0', fontSize: '18px', fontWeight: 'bold' }}>{title}</h3>
-        <div style={{ textAlign: 'center', color: '#666', fontSize: '14px' }}>
+        <div style={{ textAlign: 'center', color: "var(--theme-muted, #666)", fontSize: '14px' }}>
           <p style={{ margin: '0 0 0.5rem 0' }}>MP personality data unavailable</p>
           <p style={{ margin: '0', fontSize: '12px' }}>
             MP fund utilization data needed for performance analysis
@@ -310,7 +310,7 @@ const MPPersonalityChart = ({ data, title = 'Fund Utilization Pattern Analysis' 
         style={{
           marginTop: '15px',
           padding: responsive.isMobile ? '12px' : '15px',
-          backgroundColor: '#f8f9fa',
+          backgroundColor: "var(--theme-surface-soft, #f8f9fa)",
           borderRadius: '8px',
           fontSize: responsive.isSmallMobile ? '11px' : '12px',
         }}
@@ -336,7 +336,7 @@ const MPPersonalityChart = ({ data, title = 'Fund Utilization Pattern Analysis' 
                   flexShrink: 0,
                 }}
               ></div>
-              <div style={{ color: '#333' }}>
+              <div style={{ color: "var(--theme-text, #333)" }}>
                 <strong>{item.name}</strong>: {item.description}
               </div>
             </div>
@@ -345,7 +345,7 @@ const MPPersonalityChart = ({ data, title = 'Fund Utilization Pattern Analysis' 
       </div>
 
       {selectedType && (
-        <div style={{ textAlign: 'center', marginTop: '10px', color: '#666' }}>
+        <div style={{ textAlign: 'center', marginTop: '10px', color: "var(--theme-muted, #666)" }}>
           <small>
             Click on chart segments to explore personality types. Selected: {selectedType}
           </small>

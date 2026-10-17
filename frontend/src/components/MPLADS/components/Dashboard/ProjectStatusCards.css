@@ -77,7 +77,7 @@
   background: linear-gradient(
     45deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.2) 50%,
+    rgb(var(--theme-surface-rgb, 255 255 255) / 0.2) 50%,
     transparent 70%
   );
   transform: translateX(-100%);
@@ -138,12 +138,12 @@
 }
 
 .status-card-orange .status-card-icon {
-  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
-  color: #ea580c;
+  background: linear-gradient(135deg, var(--theme-blue-soft, #fed7aa) 0%, var(--theme-amber-soft, #fdba74) 100%);
+  color: var(--theme-amber-text, #ea580c);
 }
 
 .status-card-orange .status-card-percentage {
-  color: #ea580c;
+  color: var(--theme-amber-text, #ea580c);
 }
 
 .status-card-body {
@@ -204,7 +204,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.4) 50%,
+    rgb(var(--theme-surface-rgb, 255 255 255) / 0.4) 50%,
     transparent 100%
   );
   animation: shimmer 3s infinite;

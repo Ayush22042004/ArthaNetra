@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { projectMetrics } from '../../../../utils/projectMetrics'
 import {
   FiUser,
   FiMapPin,
@@ -47,11 +48,7 @@ const MPCard = ({ mp, rank = null }) => {
   const slug = normalizeMPSlug(buildMPSlugHuman(mp, { lsTerm: filters?.lsTerm }))
   // Use utilization percentage as primary metric
   const utilizationPercentage = mp.utilizationPercentage || 0
-  const completionRate =
-    mp.completionRate ||
-    ((mp.recommendedWorksCount || 0) > 0
-      ? Math.min(((mp.completedWorksCount || 0) / (mp.recommendedWorksCount || 0)) * 100, 100)
-      : 0)
+  const { completionRate } = projectMetrics(mp.completedWorksCount, mp.recommendedWorksCount)
   const inProgressPayments =
     mp.inProgressPayments !== undefined
       ? mp.inProgressPayments

@@ -1,4 +1,4 @@
-import ReactECharts from 'echarts-for-react'
+import ReactECharts from '../../../common/ThemedEChart'
 import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 
@@ -264,7 +264,7 @@ const StateAllocationChart = ({ data, title = 'State-wise Allocation vs Expendit
         }}
       >
         <h3 style={{ margin: '0 0 1rem 0', fontSize: '18px', fontWeight: 'bold' }}>{title}</h3>
-        <div style={{ textAlign: 'center', color: '#666', fontSize: '14px' }}>
+        <div style={{ textAlign: 'center', color: "var(--theme-muted, #666)", fontSize: '14px' }}>
           <p style={{ margin: '0 0 0.5rem 0' }}>State allocation data unavailable</p>
           <p style={{ margin: '0', fontSize: '12px' }}>
             Unable to load state-wise allocation and expenditure data
@@ -281,9 +281,9 @@ const StateAllocationChart = ({ data, title = 'State-wise Allocation vs Expendit
         style={{
           marginBottom: '15px',
           padding: '10px',
-          backgroundColor: '#f8f9fa',
+          backgroundColor: "var(--theme-surface-soft, #f8f9fa)",
           borderRadius: '8px',
-          border: '1px solid #e9ecef',
+          border: "1px solid var(--theme-border, #e9ecef)",
         }}
       >
         <div
@@ -323,8 +323,8 @@ const StateAllocationChart = ({ data, title = 'State-wise Allocation vs Expendit
             onClick={() => handleQuickSelect('bottom10')}
             style={{
               padding: '6px 12px',
-              backgroundColor: '#ffc107',
-              color: 'black',
+              backgroundColor: "var(--theme-amber-soft, #ffc107)",
+              color: "var(--theme-text, black)",
               fontSize: '12px',
             }}
           >
@@ -343,7 +343,7 @@ const StateAllocationChart = ({ data, title = 'State-wise Allocation vs Expendit
           </Button>
 
           {selectedStates.length > 0 && (
-            <span style={{ fontSize: '12px', color: '#666', marginLeft: '10px' }}>
+            <span style={{ fontSize: '12px', color: "var(--theme-muted, #666)", marginLeft: '10px' }}>
               Showing {selectedStates.length} of {allStates.length} states
             </span>
           )}
@@ -383,9 +383,9 @@ const StateAllocationChart = ({ data, title = 'State-wise Allocation vs Expendit
                 maxHeight: '200px',
                 overflowY: 'auto',
                 padding: '5px',
-                border: '1px solid #ddd',
+                border: "1px solid var(--theme-border, #ddd)",
                 borderRadius: '4px',
-                backgroundColor: 'white',
+                backgroundColor: "var(--theme-surface, white)",
               }}
             >
               {allStates.map(state => (
@@ -428,7 +428,7 @@ const StateAllocationChart = ({ data, title = 'State-wise Allocation vs Expendit
         onEvents={onEvents}
       />
       {selectedState && (
-        <div style={{ textAlign: 'center', marginTop: '10px', color: '#666' }}>
+        <div style={{ textAlign: 'center', marginTop: '10px', color: "var(--theme-muted, #666)" }}>
           <small>Click on chart to explore state data. Selected: {selectedState}</small>
         </div>
       )}

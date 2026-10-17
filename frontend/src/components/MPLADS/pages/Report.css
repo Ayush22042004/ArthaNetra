@@ -80,7 +80,7 @@
   gap: 12px;
   min-height: 180px;
   padding: 24px;
-  border: 1px solid rgba(0, 108, 103, 0.18);
+  border: 1px solid rgb(var(--theme-border-rgb, 0 108 103) / 0.18);
   border-radius: 8px;
   background:
     linear-gradient(145deg, rgba(6, 61, 74, 0.96), rgba(0, 108, 103, 0.92)),
@@ -91,7 +91,7 @@
 .report-hero-panel svg {
   width: 28px;
   height: 28px;
-  color: #81e6d9;
+  color: var(--theme-teal-text, #81e6d9);
 }
 
 .report-hero-panel strong {
@@ -131,7 +131,7 @@
   margin-bottom: 14px;
   place-items: center;
   border-radius: 8px;
-  background: #e8f7f4;
+  background: var(--theme-surface-soft, #e8f7f4);
   color: var(--report-primary);
 }
 
@@ -195,13 +195,13 @@
 .report-form select:focus,
 .report-submit:focus-visible,
 .report-mail-link:focus-visible {
-  outline: 3px solid rgba(0, 108, 103, 0.2);
+  outline: 3px solid rgb(var(--theme-border-rgb, 0 108 103) / 0.2);
   outline-offset: 2px;
 }
 
 .report-switcher button.is-active {
-  border-color: rgba(0, 108, 103, 0.22);
-  background: #e8f7f4;
+  border-color: rgb(var(--theme-border-rgb, 0 108 103) / 0.22);
+  background: var(--theme-surface-soft, #e8f7f4);
   color: var(--report-primary-dark);
   transform: translateX(2px);
 }
@@ -281,9 +281,9 @@
 .report-form textarea,
 .report-form select {
   width: 100%;
-  border: 1px solid #cedce6;
+  border: 1px solid var(--theme-border, #cedce6);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--theme-surface, #ffffff);
   color: var(--report-ink);
   font: inherit;
   font-size: 0.95rem;
@@ -308,7 +308,7 @@
 
 .report-form input::placeholder,
 .report-form textarea::placeholder {
-  color: #8da0b5;
+  color: var(--theme-muted, #8da0b5);
 }
 
 .report-form input:focus,
@@ -404,7 +404,7 @@
   height: 28px;
   padding: 6px;
   border-radius: 50%;
-  background: #e8f7f4;
+  background: var(--theme-surface-soft, #e8f7f4);
   color: var(--report-primary);
 }
 
@@ -412,7 +412,7 @@
   display: flex;
   gap: 12px;
   padding: 14px;
-  border: 1px solid #d8e4ec;
+  border: 1px solid var(--theme-border, #d8e4ec);
   border-radius: 8px;
   background: var(--report-surface-soft);
 }

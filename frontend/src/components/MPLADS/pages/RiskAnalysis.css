@@ -150,7 +150,7 @@
   height: 12px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e8eef4;
+  background: var(--theme-surface-soft, #e8eef4);
 }
 
 .risk-bar {
@@ -245,7 +245,7 @@
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #f6fafc;
+  background: var(--theme-surface-soft, #f6fafc);
 }
 
 .project-name {
@@ -265,7 +265,7 @@
   height: 8px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e8eef4;
+  background: var(--theme-surface-soft, #e8eef4);
 }
 
 .utilization-meter i {

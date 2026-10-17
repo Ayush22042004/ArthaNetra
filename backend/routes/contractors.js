@@ -1,8 +1,14 @@
 const express = require('express')
 const crypto = require('crypto')
+const bcrypt = require('bcryptjs')
+const { issueContractorToken, requireContractor } = require('../middleware/contractorAuth')
+const { verifyEvidence } = require('../services/evidenceVerification')
+const { getVisionStatus } = require('../services/visionProvider')
 const { connectToDatabase } = require('../utils/database')
 
 const router = express.Router()
+router.use('/testing', require('./contractorTesting'))
+router.get('/vision/status', requireContractor, (req, res) => res.json({ success: true, data: getVisionStatus() }))
 let contractorDemoDataReady = false
 let contractorDemoDataPromise = null
 
@@ -602,7 +608,9 @@ const deriveProjectExecutionStatus = (project, latestUpdate) => {
     ? (Date.now() - new Date(latestUpdate.serverUploadTime).getTime()) / (60 * 60 * 1000)
     : Infinity
   const progressGap = clamp(project.expectedProgress) - clamp(project.progressPercent)
-  const latestStatus = latestUpdate?.verificationStatus || project.latestVerificationStatus
+  const latestStatus = latestUpdate && latestUpdate.strictVerificationVersion !== 3
+    ? 'LEGACY_UNASSESSED'
+    : latestUpdate?.verificationStatus || project.latestVerificationStatus
 
   if (
     latestUpdate?.geoVerification?.status === 'LOCATION_MISMATCH' ||
@@ -616,7 +624,7 @@ const deriveProjectExecutionStatus = (project, latestUpdate) => {
     }
   }
 
-  if (!latestUpdate || latestStatus === 'REVIEW_REQUIRED' || hoursSinceUpdate > 36 || progressGap > 8) {
+  if (!latestUpdate || latestStatus !== 'VERIFIED' || hoursSinceUpdate > 36 || progressGap > 8) {
     return {
       status: 'YELLOW',
       label: 'Review required',
@@ -958,7 +966,7 @@ const buildStrictEvidenceChecks = (project, update, duplicateMatch = null) => {
   }
 }
 
-const rescoreExistingWorkUpdates = async db => {
+const _rescoreExistingWorkUpdates = async db => {
   const projectsCollection = db.collection('contractor_projects')
   const updatesCollection = db.collection('work_updates')
   const updates = await updatesCollection.find({}).sort({ serverUploadTime: 1 }).toArray()
@@ -1269,7 +1277,13 @@ const ensureDemoData = async db => {
     })
   )
 
-  await rescoreExistingWorkUpdates(db)
+  // Historical evidence is immutable; never replace a real review with startup heuristics.
+  for (const [email, config] of Object.entries(demoContractorCredentials)) {
+    const account = await db.collection('contractors').findOne({ contractorId: config.contractorId })
+    if (account && !account.passwordHash) {
+      await db.collection('contractors').updateOne({ contractorId: config.contractorId, passwordHash: { $exists: false } }, { $set: { email, passwordHash: await bcrypt.hash(config.password, 12) } })
+    }
+  }
 }
 
 const withDemoData = async () => {
@@ -1317,24 +1331,19 @@ router.post('/login', async (req, res, next) => {
     const db = await withDemoData()
     const email = String(req.body?.email || '').trim().toLowerCase()
     const password = String(req.body?.password || '')
-    const credentials = demoContractorCredentials[email]
-
-    if (!credentials || credentials.password !== password) {
+    const contractor = await db.collection('contractors').findOne({ email, isActive: { $ne: false } })
+    if (!contractor?.passwordHash || !(await bcrypt.compare(password, contractor.passwordHash))) {
       return res.status(401).json({
         success: false,
         error: 'Invalid contractor credentials',
       })
     }
 
-    const contractor = await db.collection('contractors').findOne({ contractorId: credentials.contractorId })
     if (!contractor) {
       return res.status(404).json({ success: false, error: 'Contractor profile not found' })
     }
 
-    const token = crypto
-      .createHash('sha256')
-      .update(`${email}:${credentials.contractorId}:${new Date().toISOString().slice(0, 10)}`)
-      .digest('hex')
+    const token = issueContractorToken(contractor.contractorId)
 
     const quality = calculateQualityScore(contractor)
     res.json({
@@ -1344,6 +1353,7 @@ router.post('/login', async (req, res, next) => {
         role: 'CONTRACTOR',
         contractor: {
           ...contractor,
+          passwordHash: undefined,
           email,
           qualityCredit: quality.score,
           scoreComponents: quality.components,
@@ -1355,9 +1365,9 @@ router.post('/login', async (req, res, next) => {
   }
 })
 
-router.get('/dashboard', async (req, res, next) => {
+router.get('/dashboard', requireContractor, async (req, res, next) => {
   try {
-    const contractorId = req.query.contractorId || 'abc-infra'
+    const contractorId = req.contractor.contractorId
     const db = await withDemoData()
     const contractor = await db.collection('contractors').findOne({ contractorId })
     if (!contractor) return res.status(404).json({ success: false, error: 'Contractor not found' })
@@ -1386,7 +1396,7 @@ router.get('/dashboard', async (req, res, next) => {
     res.json({
       success: true,
       data: {
-        contractor: { ...contractor, qualityCredit: quality.score, scoreComponents: quality.components },
+        contractor: { ...contractor, passwordHash: undefined, qualityCredit: quality.score, scoreComponents: quality.components },
         metrics: {
           assignedProjects: projects.length,
           activeProjects: projects.filter(project => project.progressPercent < 100).length,
@@ -1404,9 +1414,9 @@ router.get('/dashboard', async (req, res, next) => {
   }
 })
 
-router.get('/projects', async (req, res, next) => {
+router.get('/projects', requireContractor, async (req, res, next) => {
   try {
-    const contractorId = req.query.contractorId
+    const contractorId = req.contractor.contractorId
     const db = await withDemoData()
     const query = contractorId ? { contractorId } : {}
     const projects = await db.collection('contractor_projects').find(query).sort({ riskLevel: 1 }).toArray()
@@ -1426,7 +1436,7 @@ router.get('/leaderboard', async (req, res, next) => {
     if (district) query.district = new RegExp(String(district), 'i')
     if (specialization) query.specializations = new RegExp(String(specialization), 'i')
 
-    const contractors = await db.collection('contractors').find(query).toArray()
+    const contractors = await db.collection('contractors').find(query).project({ passwordHash: 0 }).toArray()
     const rows = contractors
       .map(contractor => {
         const quality = calculateQualityScore(contractor)
@@ -1476,6 +1486,7 @@ router.get('/map-projects', async (req, res, next) => {
         state: project.state,
         category: project.category,
         progressPercent: project.progressPercent,
+        amount: project.amount,
         expectedProgress: project.expectedProgress,
         riskLevel: project.riskLevel,
         latitude: project.registeredLatitude,
@@ -1483,9 +1494,9 @@ router.get('/map-projects', async (req, res, next) => {
         lastUpdateAt: latestUpdate?.serverUploadTime || project.lastUpdateAt,
         latestPhotoUrl: latestUpdate?.photoUrl || project.latestPhotoUrl,
         latestVerificationScore:
-          latestUpdate?.overallVerificationScore || project.latestVerificationScore || null,
+          latestUpdate?.strictVerificationVersion === 3 ? latestUpdate.overallVerificationScore ?? null : null,
         latestVerificationStatus:
-          latestUpdate?.verificationStatus || project.latestVerificationStatus || 'PENDING',
+          latestUpdate && latestUpdate.strictVerificationVersion !== 3 ? 'LEGACY_UNASSESSED' : latestUpdate?.verificationStatus || project.latestVerificationStatus || 'PENDING',
         contractorQualityCredit: quality.score,
         source: project.source || 'demo_execution_layer',
         sourceCollection: project.sourceCollection,
@@ -1634,7 +1645,7 @@ router.get('/projects/:projectId/shortlist', async (req, res, next) => {
   }
 })
 
-router.get('/projects/:projectId/timeline', async (req, res, next) => {
+router.get('/projects/:projectId/timeline', requireContractor, async (req, res, next) => {
   try {
     const db = await withDemoData()
     const project = await db.collection('contractor_projects').findOne({ projectId: req.params.projectId })
@@ -1679,35 +1690,26 @@ router.get('/:contractorId', async (req, res, next) => {
 
     res.json({
       success: true,
-      data: { ...contractor, projects, qualityCredit: quality.score, scoreComponents: quality.components },
+      data: { ...contractor, passwordHash: undefined, projects, qualityCredit: quality.score, scoreComponents: quality.components },
     })
   } catch (error) {
     next(error)
   }
 })
 
-router.post('/projects/:projectId/updates', async (req, res, next) => {
+router.post('/projects/:projectId/updates', requireContractor, async (req, res, next) => {
   try {
     const db = await withDemoData()
     const project = await db.collection('contractor_projects').findOne({ projectId: req.params.projectId })
     if (!project) return res.status(404).json({ success: false, error: 'Project not found' })
 
     const body = req.body || {}
-    const contractorId = body.contractorId || project.contractorId
-    const progressPercent = clamp(body.progressPercent)
-    const photoUrl = body.photoUrl || sampleImages[project.category]?.[0] || ''
-    const mediaType = ['image', 'video', 'url'].includes(body.mediaType) ? body.mediaType : 'url'
+    const contractorId = req.contractor.contractorId
+    const progressPercent = Number(body.progressPercent)
+    const mediaType = 'image'
     const mediaName = String(body.mediaName || '').slice(0, 160)
-    if (!Number.isFinite(Number(body.latitude)) || !Number.isFinite(Number(body.longitude))) {
-      return res.status(400).json({
-        success: false,
-        error: 'GPS latitude and longitude are required for field evidence.',
-      })
-    }
-    const fingerprint = evidenceFingerprint(photoUrl)
-    const duplicateMatch = await db
-      .collection('work_updates')
-      .findOne({ projectId: project.projectId, evidenceFingerprint: fingerprint })
+    const checked = await verifyEvidence(db, project, body)
+    const { photoUrl, evidenceFingerprint: fingerprint, perceptualHash } = checked
     const {
       geoVerification,
       imageVerification,
@@ -1716,17 +1718,7 @@ router.post('/projects/:projectId/updates', async (req, res, next) => {
       overallVerificationScore,
       verificationStatus,
       strictVerificationVersion,
-    } = buildStrictEvidenceChecks(
-      project,
-      {
-        ...body,
-        photoUrl,
-        mediaType,
-        mediaName,
-        progressPercent,
-      },
-      duplicateMatch
-    )
+    } = checked
     const now = new Date()
     const update = {
       updateId: `upd-${now.getTime()}-${crypto.randomBytes(3).toString('hex')}`,
@@ -1743,6 +1735,8 @@ router.post('/projects/:projectId/updates', async (req, res, next) => {
       clientCaptureTime: body.clientCaptureTime ? new Date(body.clientCaptureTime) : now,
       serverUploadTime: now,
       evidenceFingerprint: fingerprint,
+      perceptualHash,
+      gpsCapturedAt: new Date(body.gpsCapturedAt),
       geoVerification,
       imageVerification,
       duplicateCheck,
@@ -1754,16 +1748,24 @@ router.post('/projects/:projectId/updates', async (req, res, next) => {
     }
 
     await db.collection('work_updates').insertOne(update)
+    const liveUpdates = await db.collection('work_updates').aggregate([
+      { $match: { contractorId, strictVerificationVersion: 3 } },
+      { $group: { _id: null, total: { $sum: 1 }, verified: { $sum: { $cond: [{ $eq: ['$verificationStatus', 'VERIFIED'] }, 1, 0] } }, review: { $sum: { $cond: [{ $in: ['$verificationStatus', ['SUSPICIOUS', 'REVIEW_REQUIRED']] }, 1, 0] } } } },
+    ]).toArray()
+    if (liveUpdates[0]?.total) {
+      const live = liveUpdates[0]
+      await db.collection('contractors').updateOne({ contractorId }, { $set: { verifiedEvidenceRate: live.verified / live.total * 100, anomalyRate: live.review / live.total * 100, liveEvidenceCount: live.total, scoreUpdatedAt: now } })
+    }
     await db.collection('contractor_projects').updateOne(
       { projectId: project.projectId },
       {
         $set: {
-          progressPercent,
           lastUpdateAt: now,
           latestVerificationStatus: verificationStatus,
           latestVerificationScore: overallVerificationScore,
           latestPhotoUrl: photoUrl,
         },
+        ...(verificationStatus === 'VERIFIED' ? { $max: { progressPercent } } : {}),
       }
     )
 

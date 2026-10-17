@@ -187,7 +187,10 @@ const getOverview = async (req, res) => {
       data: {
         totalAllocated: doc.totalAllocated || 0,
         totalExpenditure: doc.totalExpenditure || 0,
-        utilizationPercentage: doc.utilizationPercentage || 0,
+        utilizationPercentage: doc.totalAllocated > 0 ? (doc.totalExpenditure || 0) / doc.totalAllocated * 100 : 0,
+        expenditureExceedsAllocation: (doc.totalExpenditure || 0) > (doc.totalAllocated || 0),
+        generatedAt: new Date().toISOString(),
+        countDefinition: 'Recommended counts are outstanding works; tracked total is completed plus outstanding within the requested house and Lok Sabha term.',
         totalMPs: doc.totalMPs || 0,
         totalWorksCompleted: doc.totalWorksCompleted || 0,
         totalWorksRecommended: doc.totalWorksRecommended || 0,
@@ -476,8 +479,8 @@ const getMPSummary = async (req, res) => {
         utilizationPercentage: mp.utilizationPercentage || 0,
         completedWorksCount: mp.completedWorksCount || 0,
         recommendedWorksCount: mp.recommendedWorksCount || 0,
-        completionRate: mp.completionRate || 0,
-        pendingWorks: mp.pendingWorks || 0,
+        completionRate: ((mp.completedWorksCount || 0) + (mp.recommendedWorksCount || 0)) > 0 ? (mp.completedWorksCount || 0) / ((mp.completedWorksCount || 0) + (mp.recommendedWorksCount || 0)) * 100 : 0,
+        pendingWorks: mp.recommendedWorksCount || 0,
         unspentAmount: mp.unspentAmount || 0,
         // Additional metrics
         completedWorksValue: mp.completedWorksValue || 0,

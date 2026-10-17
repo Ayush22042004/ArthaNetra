@@ -583,7 +583,7 @@ const StateDetail = () => {
                 <div className="mobile-mp-list">
                   <div className="mobile-sort-control" style={{ marginBottom: '1rem' }}>
                     <label
-                      style={{ marginRight: '0.5rem', fontSize: '0.875rem', color: '#4a5568' }}
+                      style={{ marginRight: '0.5rem', fontSize: '0.875rem', color: "var(--theme-muted, #4a5568)" }}
                     >
                       Sort by:
                     </label>
@@ -600,7 +600,7 @@ const StateDetail = () => {
                       }}
                       style={{
                         padding: '0.25rem 0.5rem',
-                        border: '1px solid #e2e8f0',
+                        border: "1px solid var(--theme-border, #e2e8f0)",
                         borderRadius: '0.25rem',
                         fontSize: '0.875rem',
                       }}

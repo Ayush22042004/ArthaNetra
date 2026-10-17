@@ -27,8 +27,8 @@
   z-index: -1;
   content: '';
   background:
-    radial-gradient(circle at 82% 18%, rgba(142, 232, 221, 0.24), transparent 22rem),
-    radial-gradient(circle at 9% 92%, rgba(255, 189, 128, 0.16), transparent 20rem),
+    radial-gradient(circle at 82% 18%, var(--theme-teal-soft, rgba(142, 232, 221, 0.24)), transparent 22rem),
+    radial-gradient(circle at 9% 92%, var(--theme-amber-soft, rgba(255, 189, 128, 0.16)), transparent 20rem),
     linear-gradient(115deg, rgba(6, 31, 43, 0.82) 0%, rgba(6, 31, 43, 0.62) 48%, rgba(6, 31, 43, 0.46) 100%);
 }
 
@@ -42,9 +42,9 @@
 
 .contractor-login-story,
 .contractor-login-card {
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgb(var(--theme-border-rgb, 255 255 255) / 0.18);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.11);
+  background: rgb(var(--theme-surface-rgb, 255 255 255) / 0.11);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
   backdrop-filter: blur(18px);
 }
@@ -62,7 +62,7 @@
   width: fit-content;
   align-items: center;
   gap: 0.45rem;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 1px solid rgb(var(--theme-border-rgb, 255 255 255) / 0.24);
   border-radius: 999px;
   background: rgba(6, 31, 43, 0.26);
   backdrop-filter: blur(14px);
@@ -75,7 +75,7 @@
 .contractor-login-story > span,
 .login-card-title span,
 .demo-account-list > span {
-  color: #8ee8dd;
+  color: var(--theme-teal-text, #8ee8dd);
   font-size: 0.75rem;
   font-weight: 900;
   letter-spacing: 0.08em;
@@ -111,7 +111,7 @@
   position: relative;
   display: grid;
   gap: 0.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgb(var(--theme-border-rgb, 255 255 255) / 0.18);
   border-radius: 8px;
   background: rgba(6, 31, 43, 0.34);
   backdrop-filter: blur(14px);
@@ -126,7 +126,7 @@
   width: 0.72rem;
   height: 0.72rem;
   border-radius: 999px;
-  background: #8ee8dd;
+  background: var(--theme-teal-soft, #8ee8dd);
   box-shadow: 0 0 0 4px rgba(142, 232, 221, 0.16);
   content: '';
 }
@@ -148,8 +148,8 @@
   display: grid;
   gap: 1rem;
   padding: clamp(1.15rem, 2vw, 1.45rem);
-  background: rgba(255, 255, 255, 0.96);
-  color: #102538;
+  background: rgb(var(--theme-surface-rgb, 255 255 255) / 0.96);
+  color: var(--theme-text, #102538);
   box-shadow: 0 28px 70px rgba(0, 0, 0, 0.34);
 }
 
@@ -158,15 +158,15 @@
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 0.8rem;
-  border-bottom: 1px solid #dce9ef;
+  border-bottom: 1px solid var(--theme-border, #dce9ef);
 }
 
 .login-card-title svg {
   width: 2.8rem;
   height: 2.8rem;
   border-radius: 8px;
-  background: #e8faf7;
-  color: #00796f;
+  background: var(--theme-surface-soft, #e8faf7);
+  color: var(--theme-teal-text, #00796f);
   padding: 0.7rem;
 }
 
@@ -179,7 +179,7 @@
 .contractor-login-card label {
   display: grid;
   gap: 0.4rem;
-  color: #19324a;
+  color: var(--theme-text, #19324a);
   font-weight: 850;
 }
 
@@ -191,10 +191,10 @@
 
 .contractor-login-card input {
   width: 100%;
-  border: 1px solid #cbdbe4;
+  border: 1px solid var(--theme-border, #cbdbe4);
   border-radius: 8px;
-  background: #fff;
-  color: #102538;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #102538);
   font: inherit;
   font-weight: 700;
   outline: none;
@@ -202,7 +202,7 @@
 }
 
 .contractor-login-card input:focus {
-  border-color: #00897b;
+  border-color: var(--theme-border, #00897b);
   box-shadow: 0 0 0 3px rgba(0, 137, 123, 0.15);
 }
 
@@ -234,10 +234,10 @@
   display: grid;
   gap: 0.2rem;
   width: 100%;
-  border: 1px solid #dce9ef;
+  border: 1px solid var(--theme-border, #dce9ef);
   border-radius: 8px;
-  background: #fbfdfe;
-  color: #102538;
+  background: var(--theme-surface, #fbfdfe);
+  color: var(--theme-text, #102538);
   text-align: left;
   padding: 0.7rem;
 }
@@ -247,7 +247,7 @@
 }
 
 .demo-account-list button small {
-  color: #61788a;
+  color: var(--theme-muted, #61788a);
   font-weight: 700;
 }
 

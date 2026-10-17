@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from 'react-leaflet'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../hooks/useAuth'
+import { investigationsAPI } from '../../../services/api/investigations'
+import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import {
   FiAlertTriangle,
   FiArrowUpRight,
@@ -21,6 +24,7 @@ import './IntelligenceMap.css'
 type RiskLevel = 'Low' | 'Medium' | 'High'
 
 interface RiskApiWork {
+  sourceType?: string
   workId?: number
   recommendationId?: number
   name?: string
@@ -35,7 +39,7 @@ interface RiskApiWork {
   utilization?: number
   allocated?: number
   expenditure?: number
-  reasons?: string[]
+  reasons?: string[] | string
   status?: string
   contractor?: string
   qualityRating?: number
@@ -63,6 +67,8 @@ interface Coordinate {
 }
 
 interface MapProject {
+  sourceType?: string
+  sourceId?: string
   id: number
   title: string
   category: string
@@ -71,6 +77,7 @@ interface MapProject {
   state: string
   funds: number
   expenditure: number
+  expenditureKnown?: boolean
   progress: number
   risk: number
   riskLevel: RiskLevel
@@ -82,7 +89,7 @@ interface MapProject {
   lat: number
   lng: number
   coordinateSource: 'project' | 'constituency' | 'state' | 'country'
-  daysDelayed: number
+  daysDelayed: number | null
   dataSource?: 'risk_engine' | 'constituency_cluster' | 'contractor_evidence'
   sourceWorkId?: string | number
   latestVerificationStatus?: string
@@ -92,6 +99,7 @@ interface MapProject {
 }
 
 interface ContractorMapProject {
+  amount?: number
   projectId?: string
   title?: string
   contractorName?: string
@@ -372,8 +380,9 @@ const normalizeContractorProject = (project: ContractorMapProject, index: number
     constituency: project.mpName || project.district || 'Contractor monitored work',
     district: project.district || 'Unknown district',
     state: project.state || 'India',
-    funds: 0,
+    funds: toNumber(project.amount),
     expenditure: 0,
+    expenditureKnown: false,
     progress,
     risk: evidenceRisk,
     riskLevel,
@@ -397,8 +406,10 @@ const normalizeContractorProject = (project: ContractorMapProject, index: number
         : project.coordinateSource === 'state_centroid_fallback_not_official_site_gps'
           ? 'state'
           : 'project',
-    daysDelayed: riskLevel === 'High' ? 18 : riskLevel === 'Medium' ? 6 : 0,
+    daysDelayed: null,
     dataSource: 'contractor_evidence',
+    sourceType: 'contractor_projects',
+    sourceId: project.projectId,
     sourceWorkId: project.sourceWorkId,
     latestVerificationStatus: project.latestVerificationStatus,
     latestVerificationScore: project.latestVerificationScore,
@@ -422,8 +433,8 @@ const buildDynamicRiskReasons = (
 
   if (project.progress === 0) {
     reasons.push(
-      project.funds > 0
-        ? `0% progress and ${formatFunds(project.expenditure)} spend are recorded against ${formatFunds(project.funds)} sanctioned funds.`
+      project.funds > 0 && project.expenditureKnown !== false
+        ? `0% progress and ${formatFunds(project.expenditure)} spend are recorded against a source work amount of ${formatFunds(project.funds)}.`
         : '0% progress is recorded, so execution evidence is still missing.'
     )
   } else if (project.progress < 100) {
@@ -442,12 +453,14 @@ const buildDynamicRiskReasons = (
     reasons.push(`Current status is ${normalizedStatus}; check whether the work has actually started on site.`)
   }
 
-  if (project.funds > 0 && project.expenditure > project.funds) {
+  if (project.expenditureKnown === false) {
+    reasons.push('Linked expenditure is not included in this field marker; inspect the investigation payment ledger before drawing financial conclusions.')
+  } else if (project.funds > 0 && project.expenditure > project.funds) {
     reasons.push('Recorded expenditure is higher than allocated funds and needs financial reconciliation.')
   } else if (project.progress >= 80 && project.expenditure === 0) {
     reasons.push('High progress is reported, but no expenditure is recorded; payment data needs verification.')
   } else if (project.progress > 0 && project.progress < 100 && project.funds > 0 && spendRate < 25) {
-    reasons.push(`Only ${spendRate}% of sanctioned funds have been spent while work is already underway.`)
+    reasons.push(`Recorded expenditure is ${spendRate}% of the source work amount; review execution and payment records together.`)
   }
 
   if (!project.qualityRating && project.riskLevel !== 'Low') {
@@ -497,7 +510,7 @@ const buildEvidenceImages = (
       caption: image.photographer
         ? `${project.constituency} project context ${index + 1}, photo by ${image.photographer}`
         : `${project.constituency} project context ${index + 1}`,
-      source: 'provider',
+      source: 'provider' as const,
     })).filter(image => image.src)
   }
 
@@ -575,6 +588,8 @@ const normalizeWork = (work: RiskApiWork, index: number): MapProject => {
 
   return {
     id: Number.isFinite(rawId) ? rawId : index + 1,
+    sourceType: work.sourceType || (work.recommendationId ? 'works_recommended' : 'works_completed'),
+    sourceId: work.recommendationId || work.workId ? String(work.recommendationId || work.workId) : undefined,
     title: work.name || work.workName || work.title || 'Untitled MPLADS work',
     category: work.category || 'Uncategorised',
     constituency,
@@ -597,12 +612,7 @@ const normalizeWork = (work: RiskApiWork, index: number): MapProject => {
     lat: coordinate.lat,
     lng: coordinate.lng,
     coordinateSource: coordinate.source,
-    daysDelayed:
-      riskLevel === 'High'
-        ? Math.max(14, Math.round(risk / 2))
-        : riskLevel === 'Medium'
-          ? Math.max(3, Math.round(risk / 8))
-          : 0,
+    daysDelayed: null,
   }
 }
 
@@ -748,11 +758,6 @@ const buildDensityRows = (works: MapProject[]): RiskDensityGroup[] => {
     .slice(0, 12)
 }
 
-const mapEmbed = (project: MapProject, zoom = 11) =>
-  `https://maps.google.com/maps?q=${encodeURIComponent(
-    `${project.lat},${project.lng}`
-  )}&t=k&z=${zoom}&output=embed`
-
 const riskClass = (level: RiskLevel) => level.toLowerCase()
 
 const markerColor = (level: RiskLevel) => {
@@ -766,6 +771,52 @@ const INDIA_VIEW_BOUNDS: [[number, number], [number, number]] = [
   [6.2, 67.5],
   [35.8, 97.7],
 ]
+
+const majorCities = [
+  { name: 'New Delhi', lat: 28.6139, lng: 77.209 },
+  { name: 'Mumbai', lat: 19.076, lng: 72.8777 },
+  { name: 'Kolkata', lat: 22.5726, lng: 88.3639 },
+  { name: 'Chennai', lat: 13.0827, lng: 80.2707 },
+  { name: 'Bengaluru', lat: 12.9716, lng: 77.5946 },
+  { name: 'Hyderabad', lat: 17.385, lng: 78.4867 },
+  { name: 'Ahmedabad', lat: 23.0225, lng: 72.5714 },
+  { name: 'Bhopal', lat: 23.2599, lng: 77.4126 },
+  { name: 'Guwahati', lat: 26.1445, lng: 91.7362 },
+  { name: 'Srinagar', lat: 34.0837, lng: 74.7973 },
+]
+
+const ProjectMapTiles = () => (
+  <>
+    <TileLayer
+      attribution='Tiles &copy; <a href="https://www.esri.com">Esri</a>'
+      url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+      maxZoom={19}
+    />
+    <TileLayer
+      attribution='Labels: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://eox.at">EOX</a> and <a href="https://github.com/mapserver/basemaps">MapServer</a>'
+      url="https://tiles.maps.eox.at/wmts/1.0.0/overlay_bright_3857/default/g/{z}/{y}/{x}.png"
+      maxNativeZoom={14}
+      maxZoom={19}
+      zIndex={2}
+    />
+  </>
+)
+
+const ProjectLocationController = ({ lat, lng }: Coordinate) => {
+  const map = useMap()
+
+  useEffect(() => {
+    map.setView([lat, lng], 13, { animate: false })
+  }, [lat, lng, map])
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => map.invalidateSize(false))
+    observer.observe(map.getContainer())
+    return () => observer.disconnect()
+  }, [map])
+
+  return null
+}
 
 const MapLayoutController = () => {
   const map = useMap()
@@ -821,12 +872,20 @@ const MapFocus = ({ project, focusKey }: { project: MapProject; focusKey: number
 }
 
 const IntelligenceMap = () => {
+  const { isAdmin: checkAdmin } = useAuth()
+  const isAdmin = Boolean(checkAdmin())
+  const navigate = useNavigate()
   const [projects, setProjects] = useState<MapProject[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [verifiedProjectIds, setVerifiedProjectIds] = useState<Set<number>>(() => new Set())
-  const [escalatedProjectIds, setEscalatedProjectIds] = useState<Set<number>>(() => new Set())
+  const [reviewCases, setReviewCases] = useState<any[]>([])
+  const [reviewBusy, setReviewBusy] = useState(false)
+  const [reviewError, setReviewError] = useState('')
+  useEffect(() => {
+    if (isAdmin) investigationsAPI.list().then((response: any) => setReviewCases(response.data)).catch(() => setReviewError('Authority review status could not be loaded.'))
+    else setReviewCases([])
+  }, [isAdmin])
   const [mapFocusKey, setMapFocusKey] = useState(0)
   const [detailPopoverOpen, setDetailPopoverOpen] = useState(true)
   const [weatherSignal, setWeatherSignal] = useState<WeatherSignal | null>(null)
@@ -967,8 +1026,9 @@ const IntelligenceMap = () => {
 
   const densityRows = useMemo(() => buildDensityRows(projects), [projects])
 
-  const selectedIsVerified = selectedProject ? verifiedProjectIds.has(selectedProject.id) : false
-  const selectedIsEscalated = selectedProject ? escalatedProjectIds.has(selectedProject.id) : false
+  const selectedCase = reviewCases.find(item => item.workKey === `${selectedProject?.sourceType}:${selectedProject?.sourceId}`)
+  const selectedIsVerified = selectedCase?.status === 'VERIFIED'
+  const selectedIsEscalated = selectedCase?.status === 'ESCALATED'
   const milestoneRows = useMemo(
     () => [
       {
@@ -1021,24 +1081,22 @@ const IntelligenceMap = () => {
     setDetailPopoverOpen(true)
   }
 
-  const toggleVerified = () => {
-    if (!selectedProject) return
-    setVerifiedProjectIds(previous => {
-      const next = new Set(previous)
-      if (next.has(selectedProject.id)) next.delete(selectedProject.id)
-      else next.add(selectedProject.id)
-      return next
-    })
+  const saveReview = async (status: string) => {
+    if (!isAdmin) { navigate('/login', { state: { from: { pathname: '/mplads/maps' } } }); return }
+    if (!selectedProject?.sourceType || !selectedProject.sourceId) { setReviewError('Select an individual source work, not a constituency cluster.'); return }
+    const note = window.prompt(status === 'VERIFIED' ? 'Authority verification note (at least 10 characters):' : 'Reason for escalation (at least 10 characters):')
+    if (note == null) return
+    if (note.trim().length < 10) { setReviewError('A review note of at least 10 characters is required.'); return }
+    setReviewBusy(true); setReviewError('')
+    try {
+      const response = selectedCase ? { data: selectedCase } : await investigationsAPI.create(selectedProject.sourceType, selectedProject.sourceId, note)
+      await investigationsAPI.update(response.data.caseId, { status, version: response.data.version, note })
+      const list = await investigationsAPI.list(); setReviewCases(list.data)
+    } catch (e: any) { setReviewError(e.response?.data?.error || e.response?.data?.message || 'Review could not be saved.') }
+    finally { setReviewBusy(false) }
   }
-
-  const escalateProject = () => {
-    if (!selectedProject) return
-    setEscalatedProjectIds(previous => {
-      const next = new Set(previous)
-      next.add(selectedProject.id)
-      return next
-    })
-  }
+  const toggleVerified = () => saveReview('VERIFIED')
+  const escalateProject = () => saveReview('ESCALATED')
 
   if (loading) {
     return (
@@ -1113,20 +1171,24 @@ const IntelligenceMap = () => {
             aria-label={selectedIsVerified ? 'Verified' : 'Mark verified'}
             className={selectedIsVerified ? 'success' : ''}
             onClick={toggleVerified}
+            disabled={reviewBusy || !selectedProject.sourceId}
           >
             <FiCheckCircle /> <span>{selectedIsVerified ? 'Verified' : 'Mark verified'}</span>
           </button>
-          {selectedProject.riskLevel === 'High' && (
+          {selectedProject.sourceId && (
             <button
               type="button"
               data-label={selectedIsEscalated ? 'Escalated' : 'Escalate'}
               aria-label={selectedIsEscalated ? 'Escalated' : 'Escalate'}
               className={selectedIsEscalated ? 'warning' : 'danger'}
               onClick={escalateProject}
+              disabled={reviewBusy}
             >
               <FiAlertTriangle /> <span>{selectedIsEscalated ? 'Escalated' : 'Escalate'}</span>
             </button>
           )}
+          <Link to={selectedCase ? `/mplads/investigations/${selectedCase.caseId}` : '/mplads/investigations'}>Investigation cases</Link>
+          {reviewError && <p role="alert">{reviewError}</p>}
         </div>
 
         <div className="india-map-panel" aria-label="India risk density map">
@@ -1143,15 +1205,20 @@ const IntelligenceMap = () => {
             className="leaflet-intelligence-map"
           >
             <MapLayoutController />
-            <TileLayer
-              attribution="Tiles &copy; Esri"
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            />
-            <TileLayer
-              attribution=""
-              opacity={0.35}
-              url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
-            />
+            <ProjectMapTiles />
+            {majorCities.map(city => (
+              <CircleMarker
+                key={city.name}
+                center={[city.lat, city.lng]}
+                radius={2}
+                interactive={false}
+                pathOptions={{ color: '#ffffff', weight: 1, fillOpacity: 1 }}
+              >
+                <Tooltip permanent direction="top" className="map-city-label" opacity={1}>
+                  {city.name}
+                </Tooltip>
+              </CircleMarker>
+            ))}
             <MapFocus project={selectedProject} focusKey={mapFocusKey} />
             {projects.map(project => {
               const selected = selectedProject.id === project.id
@@ -1229,7 +1296,7 @@ const IntelligenceMap = () => {
               </div>
               <div>
                 <dt>Spent</dt>
-                <dd>{formatFunds(selectedProject.expenditure)}</dd>
+                <dd>{selectedProject.expenditureKnown === false ? 'Not linked in map view' : formatFunds(selectedProject.expenditure)}</dd>
               </div>
               <div>
                 <dt>Progress</dt>
@@ -1319,11 +1386,34 @@ const IntelligenceMap = () => {
             <strong>{selectedProject.constituency}</strong>
             <span>{selectedProject.state}</span>
           </div>
-          <iframe
-            title={`${selectedProject.constituency} satellite location`}
-            src={mapEmbed(selectedProject)}
-            loading="lazy"
-          />
+          <div role="region" aria-label={`${selectedProject.constituency} project location`}>
+            <MapContainer
+              center={[selectedProject.lat, selectedProject.lng]}
+              zoom={13}
+              minZoom={3}
+              maxZoom={19}
+              scrollWheelZoom={false}
+              className="leaflet-location-map"
+            >
+              <ProjectMapTiles />
+              <ProjectLocationController lat={selectedProject.lat} lng={selectedProject.lng} />
+              <CircleMarker
+                center={[selectedProject.lat, selectedProject.lng]}
+                radius={10}
+                pathOptions={{
+                  color: '#ffffff',
+                  weight: 3,
+                  fillColor: markerColor(selectedProject.riskLevel),
+                  fillOpacity: 0.95,
+                }}
+                eventHandlers={{ click: () => setDetailPopoverOpen(true) }}
+              >
+                <Tooltip permanent direction="top" offset={[0, -12]} className="map-city-label" opacity={1}>
+                  {selectedProject.constituency}
+                </Tooltip>
+              </CircleMarker>
+            </MapContainer>
+          </div>
           {detailPopoverOpen && (
             <div className="map-detail-popover">
               <button
@@ -1338,7 +1428,7 @@ const IntelligenceMap = () => {
                 {selectedProject.constituency}, {selectedProject.state}
               </span>
               <span>Funds: {formatFunds(selectedProject.funds)}</span>
-              <span>Time period: {selectedProject.daysDelayed} days</span>
+              <span>Recorded delay: {selectedProject.daysDelayed == null ? 'Not available' : `${selectedProject.daysDelayed} days`}</span>
               <span>Category: {selectedProject.category}</span>
               <span>Progress: {selectedProject.progress}%</span>
               <span>Risk: {selectedProject.risk}%</span>
@@ -1360,7 +1450,7 @@ const IntelligenceMap = () => {
             Open location in Google Maps <FiArrowUpRight />
           </a>
           <p>
-            Satellite context is provided for orientation; confirm the exact worksite during field
+            Satellite imagery is provided for orientation; confirm the exact worksite during field
             verification.
           </p>
         </div>

@@ -1,4 +1,4 @@
-import ReactECharts from 'echarts-for-react'
+import ReactECharts from '../../../common/ThemedEChart'
 import { useMemo } from 'react'
 import { useResponsive } from '../../../../hooks/useMediaQuery'
 
@@ -122,7 +122,7 @@ const FundUtilizationGauge = ({ utilization = 0, title = 'Fund Utilization' }) =
             margin: 0,
             fontSize: responsive?.isSmallMobile ? 18 : responsive?.isMobile ? 20 : 22,
             fontWeight: 800,
-            color: '#111827',
+            color: "var(--theme-text, #111827)",
             lineHeight: 1.2,
             whiteSpace: 'nowrap',
             overflow: 'visible',

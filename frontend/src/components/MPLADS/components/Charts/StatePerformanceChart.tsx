@@ -5,6 +5,8 @@ import LoadingState from '../Common/LoadingState'
 import ErrorDisplay from '../Common/ErrorDisplay'
 import InfoTooltip from '../Common/InfoTooltip'
 import { useResponsive } from '../../../../hooks/useMediaQuery'
+import { useTheme } from '../../../../contexts/ThemeContext'
+import { withChartTheme } from '../../../../utils/chartTheme'
 
 // Utility: convert rupees to crores
 const toCrores = amountInRupees => (amountInRupees || 0) / 10000000
@@ -144,6 +146,7 @@ const StatePerformanceChart = ({
   const chartRef = useRef<any>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const responsive = useResponsive()
+  const { theme } = useTheme()
 
   // Prepare series data once per input change
   const seriesData = useMemo(() => {
@@ -262,7 +265,7 @@ const StatePerformanceChart = ({
       isSmallMobile: responsive.isSmallMobile,
       isTouchDevice: responsive.isTouchDevice,
     })
-    chartRef.current.setOption(option, true)
+    chartRef.current.setOption(withChartTheme(option, theme === 'dark'), true)
     chartRef.current.resize()
   }, [
     seriesData,
@@ -271,6 +274,7 @@ const StatePerformanceChart = ({
     responsive.isMobile,
     responsive.isSmallMobile,
     responsive.isTouchDevice,
+    theme,
   ])
 
   // Loading / error / empty states

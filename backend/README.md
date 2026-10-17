@@ -1,5 +1,7 @@
 # ArthaNetra Backend API
 
+See the [Execution Review Guide](../docs/EXECUTION_REVIEW.md) for vision verification, contractor authentication, authority accounts, investigations and validation commands.
+
 Node.js + Express + MongoDB API for the ArthaNetra MPLADS intelligence platform.
 
 ## What It Powers

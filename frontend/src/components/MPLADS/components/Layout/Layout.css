@@ -16,8 +16,8 @@
 }
 
 .mplads-footer {
-  border-top: 1px solid rgba(216, 226, 235, 0.85);
-  background: linear-gradient(180deg, rgba(247, 250, 252, 0.75), rgba(235, 242, 247, 0.92));
+  border-top: 1px solid rgb(var(--theme-border-rgb, 216 226 235) / 0.85);
+  background: linear-gradient(180deg, rgb(var(--theme-surface-soft-rgb, 247 250 252) / 0.75), rgb(var(--theme-surface-soft-rgb, 235 242 247) / 0.92));
   color: var(--intel-muted);
   padding: 38px 0 28px;
   margin-top: auto;

@@ -62,5 +62,6 @@ router.use('/weather', weatherRoutes)
 router.use('/project-images', projectImageRoutes)
 router.use('/assistant', assistantRoutes)
 router.use('/contractors', contractorRoutes)
+router.use('/investigations', require('./investigations'))
 
 module.exports = router

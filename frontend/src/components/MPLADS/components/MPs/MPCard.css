@@ -79,7 +79,7 @@
   background: linear-gradient(
     45deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgb(var(--theme-surface-rgb, 255 255 255) / 0.3) 50%,
     transparent 70%
   );
   transform: rotate(45deg) translateX(-100%);
@@ -209,7 +209,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.4) 50%,
+    rgb(var(--theme-surface-rgb, 255 255 255) / 0.4) 50%,
     transparent 100%
   );
   transition: left 0.5s ease;
@@ -371,7 +371,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgb(var(--theme-surface-rgb, 255 255 255) / 0.3) 50%,
     transparent 100%
   );
   animation: shimmer 2s infinite;
@@ -569,7 +569,7 @@
 
 .efficiency-label {
   font-size: var(--text-sm);
-  color: #1e293b;
+  color: var(--theme-text, #1e293b);
   font-weight: var(--font-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -661,7 +661,7 @@
 
 .efficiency-bar {
   height: 8px;
-  background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 100%);
+  background: linear-gradient(90deg, var(--theme-surface-soft, #e2e8f0) 0%, var(--theme-surface-soft, #cbd5e1) 100%);
   border-radius: var(--radius-full);
   overflow: hidden;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
@@ -709,12 +709,12 @@
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--spacing-3);
-  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
-  border: 1px solid #f59e0b;
+  background: linear-gradient(135deg, var(--theme-blue-soft, #fef3c7) 0%, var(--theme-blue-soft, #fed7aa) 100%);
+  border: 1px solid var(--theme-border, #f59e0b);
   border-radius: var(--radius-lg);
   margin-bottom: var(--spacing-3);
   font-size: var(--text-xs);
-  color: #92400e;
+  color: var(--theme-amber-text, #92400e);
   font-weight: var(--font-medium);
   box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
   animation: slideIn 0.5s ease-out;
@@ -745,7 +745,7 @@
 }
 
 .payment-warning svg {
-  color: #f59e0b;
+  color: var(--theme-amber-text, #f59e0b);
   font-size: var(--text-base);
   flex-shrink: 0;
   animation: pulse-icon 2s infinite;
@@ -768,8 +768,8 @@
 }
 
 .payment-warning:hover {
-  background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
-  border-color: #d97706;
+  background: linear-gradient(135deg, var(--theme-blue-soft, #fef3c7) 0%, var(--theme-amber-soft, #fbbf24) 100%);
+  border-color: var(--theme-border, #d97706);
   transform: translateY(-1px);
   box-shadow: 0 4px 6px rgba(245, 158, 11, 0.15);
 }

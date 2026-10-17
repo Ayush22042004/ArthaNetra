@@ -6,7 +6,6 @@ import {
   FiCheckCircle,
   FiFilter,
   FiMapPin,
-  FiRefreshCw,
   FiShield,
   FiTarget,
   FiTrendingUp,
@@ -46,11 +45,8 @@ const filterContractors = (
   })
 
 const ContractorLeaderboard = () => {
-  const [contractors, setContractors] = useState<Contractor[]>([])
   const [allContractors, setAllContractors] = useState<Contractor[]>([])
   const [loading, setLoading] = useState(true)
-  const [filtersAppliedAt, setFiltersAppliedAt] = useState('')
-  const [appliedFilters, setAppliedFilters] = useState({ district: '', specialization: '' })
   const [error, setError] = useState('')
   const [district, setDistrict] = useState('')
   const [specialization, setSpecialization] = useState('')
@@ -59,7 +55,12 @@ const ContractorLeaderboard = () => {
   const [selectedProjectId, setSelectedProjectId] = useState('field-road-ward-5')
   const [shortlist, setShortlist] = useState<ContractorShortlistItem[]>([])
 
-  const loadLeaderboard = async (nextFilters = { district, specialization }) => {
+  const contractors = useMemo(
+    () => filterContractors(allContractors, { district, specialization }),
+    [allContractors, district, specialization]
+  )
+
+  const loadLeaderboard = async () => {
     try {
       setError('')
       setLoading(true)
@@ -70,11 +71,8 @@ const ContractorLeaderboard = () => {
       ])
       const rows = response.data || []
       setAllContractors(rows)
-      setContractors(filterContractors(rows, nextFilters))
       setMonitoring(monitoringResponse.data)
       setMapFeed(mapResponse.data)
-      setAppliedFilters(nextFilters)
-      setFiltersAppliedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
       if (!selectedProjectId && mapResponse.data?.projects?.[0]) {
         setSelectedProjectId(mapResponse.data.projects[0].projectId)
       }
@@ -106,34 +104,22 @@ const ContractorLeaderboard = () => {
 
   const topContractor = contractors[0]
   const mapProjects = mapFeed?.projects || []
-  const selectedProject = mapProjects.find((project: any) => project.projectId === selectedProjectId)
+  const selectedProject = mapProjects.find(
+    (project: any) => project.projectId === selectedProjectId
+  )
   const filters = useMemo(() => {
-    const source = allContractors.length ? allContractors : contractors
+    const source = allContractors
     const districts = Array.from(new Set(source.map(contractor => contractor.district))).sort()
     const specializations = Array.from(
       new Set(source.flatMap(contractor => contractor.specializations || []))
     ).sort()
     return { districts, specializations }
-  }, [contractors, allContractors])
+  }, [allContractors])
 
   const hasActiveDraftFilters = Boolean(district || specialization)
-  const hasPendingFilterChanges =
-    district !== appliedFilters.district || specialization !== appliedFilters.specialization
-
-  const handleApplyFilters = () => {
-    const nextFilters = { district, specialization }
-    setContractors(filterContractors(allContractors, nextFilters))
-    setAppliedFilters(nextFilters)
-    setFiltersAppliedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
-  }
-
   const handleClearFilters = () => {
     setDistrict('')
     setSpecialization('')
-    const nextFilters = { district: '', specialization: '' }
-    setContractors(allContractors)
-    setAppliedFilters(nextFilters)
-    setFiltersAppliedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
   }
 
   return (
@@ -143,15 +129,17 @@ const ContractorLeaderboard = () => {
           <span>Contractor intelligence</span>
           <h1>Quality credit leaderboard</h1>
           <p>
-            Rank contractors using verified field evidence, completion history, cost discipline,
-            and review signals. This is decision support, not automatic procurement selection.
+            Rank contractors using verified field evidence, completion history, cost discipline, and
+            review signals. This is decision support, not automatic procurement selection.
           </p>
         </div>
         <div className="leaderboard-hero-card">
           <FiAward />
           <small>Top performer</small>
-          <strong>{topContractor?.companyName || 'Loading...'}</strong>
-          <span>{topContractor?.qualityCredit || 0}/100</span>
+          <strong>
+            {topContractor?.companyName || (loading ? 'Loading...' : 'No matching contractor')}
+          </strong>
+          {topContractor && <span>{topContractor.qualityCredit || 0}/100</span>}
         </div>
       </section>
 
@@ -161,19 +149,26 @@ const ContractorLeaderboard = () => {
           <label>
             District
             <select value={district} onChange={event => setDistrict(event.target.value)}>
-            <option value="">All districts</option>
-            {filters.districts.map(item => (
-              <option key={item} value={item}>{item}</option>
-            ))}
+              <option value="">All districts</option>
+              {filters.districts.map(item => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
             </select>
           </label>
           <label>
             Specialization
-            <select value={specialization} onChange={event => setSpecialization(event.target.value)}>
-            <option value="">All specializations</option>
-            {filters.specializations.map(item => (
-              <option key={item} value={item}>{item}</option>
-            ))}
+            <select
+              value={specialization}
+              onChange={event => setSpecialization(event.target.value)}
+            >
+              <option value="">All specializations</option>
+              {filters.specializations.map(item => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
             </select>
           </label>
         </div>
@@ -184,17 +179,11 @@ const ContractorLeaderboard = () => {
               Clear
             </button>
           )}
-          <button type="button" onClick={handleApplyFilters} disabled={loading}>
-            <FiRefreshCw className={loading ? 'is-spinning' : ''} />{' '}
-            {loading ? 'Applying' : 'Apply'}
-          </button>
         </div>
         <p className="leaderboard-filter-status" aria-live="polite">
           Showing {contractors.length} contractor{contractors.length === 1 ? '' : 's'}
-          {appliedFilters.district ? ` in ${appliedFilters.district}` : ''}
-          {appliedFilters.specialization ? ` for ${appliedFilters.specialization}` : ''}
-          {filtersAppliedAt ? ` - updated ${filtersAppliedAt}` : ''}
-          {hasPendingFilterChanges ? ' - filter changes pending' : ''}
+          {district ? ` in ${district}` : ''}
+          {specialization ? ` for ${specialization}` : ''}
         </p>
       </section>
 
@@ -225,9 +214,15 @@ const ContractorLeaderboard = () => {
             </div>
           </div>
           <div className="field-map-counts">
-            <span><i className="green" /> Green {mapFeed?.counts?.green || 0}</span>
-            <span><i className="yellow" /> Yellow {mapFeed?.counts?.yellow || 0}</span>
-            <span><i className="red" /> Red {mapFeed?.counts?.red || 0}</span>
+            <span>
+              <i className="green" /> Green {mapFeed?.counts?.green || 0}
+            </span>
+            <span>
+              <i className="yellow" /> Yellow {mapFeed?.counts?.yellow || 0}
+            </span>
+            <span>
+              <i className="red" /> Red {mapFeed?.counts?.red || 0}
+            </span>
           </div>
         </article>
 
@@ -238,7 +233,10 @@ const ContractorLeaderboard = () => {
           </div>
           <label>
             Project
-            <select value={selectedProjectId} onChange={event => setSelectedProjectId(event.target.value)}>
+            <select
+              value={selectedProjectId}
+              onChange={event => setSelectedProjectId(event.target.value)}
+            >
               {mapProjects.map((project: any) => (
                 <option value={project.projectId} key={project.projectId}>
                   {project.title}
@@ -248,7 +246,8 @@ const ContractorLeaderboard = () => {
           </label>
           {selectedProject && (
             <p className="selected-project-note">
-              <FiMapPin /> {selectedProject.district}, {selectedProject.state} - {selectedProject.category} - {selectedProject.riskLevel} risk
+              <FiMapPin /> {selectedProject.district}, {selectedProject.state} -{' '}
+              {selectedProject.category} - {selectedProject.riskLevel} risk
             </p>
           )}
           <div className="shortlist-items">
@@ -256,7 +255,9 @@ const ContractorLeaderboard = () => {
               <div key={item.contractorId}>
                 <span>#{item.rank}</span>
                 <strong>{item.companyName}</strong>
-                <em>{item.matchScore}/100 match - {item.qualityCredit}/100 credit</em>
+                <em>
+                  {item.matchScore}/100 match - {item.qualityCredit}/100 credit
+                </em>
                 <small>{item.reasons[0]}</small>
               </div>
             ))}
@@ -323,7 +324,9 @@ const ContractorLeaderboard = () => {
 
               <div className="contractor-profile">
                 <strong>{contractor.companyName}</strong>
-                <span>{contractor.registrationNumber} - {contractor.district}</span>
+                <span>
+                  {contractor.registrationNumber} - {contractor.district}
+                </span>
                 <div>
                   {(contractor.specializations || []).map(item => (
                     <em key={item}>{item}</em>

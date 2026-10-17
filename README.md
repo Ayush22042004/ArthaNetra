@@ -1,5 +1,7 @@
 # ArthaNetra
 
+Evidence verification, authority case review and setup: [Execution Review Guide](docs/EXECUTION_REVIEW.md).
+
 ArthaNetra is an MPLADS intelligence and project monitoring platform for tracking public funds, works, risk signals, project progress, constituency performance, and civic feedback.
 
 The product combines a React dashboard, a Node/Express API, MongoDB-backed MPLADS data, AI-assisted risk analysis, GIS map views, weather-aware risk signals, Formspree reporting, and a general AI assistant.

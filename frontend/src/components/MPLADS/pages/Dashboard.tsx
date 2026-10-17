@@ -190,10 +190,10 @@ const Dashboard = () => {
     },
     {
       title: 'Works Completed',
-      value: `${formatNumber(overview.totalWorksCompleted)} (₹${formatINRCompact(overview.completedWorksValue)})`,
+      value: formatNumber(overview.totalWorksCompleted),
       icon: <FiCheckCircle />,
       color: 'green',
-      description: 'Total completed projects and their value',
+      description: `Completed works valued at ₹${formatINRCompact(overview.completedWorksValue)}`,
     },
     {
       title: 'Works Pending',

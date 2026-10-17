@@ -3,7 +3,7 @@
    ========================================================================== */
 .faq-page {
   min-height: 100vh;
-  background: hsl(0 0% 100%);
+  background: var(--theme-surface, hsl(0 0% 100%));
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -30,7 +30,7 @@
 .faq-page .back-link {
   position: relative;
   display: inline-block;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   text-decoration: none;
   font-family: 'Outfit', sans-serif;
   font-weight: 500;
@@ -45,7 +45,7 @@
 }
 
 .faq-page .back-link:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   transform: none;
 }
 
@@ -54,7 +54,7 @@
   font-size: 3rem;
   font-weight: 600;
   font-style: italic;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   margin: 0;
   background: none;
   -webkit-background-clip: unset;
@@ -75,17 +75,17 @@
 .faq-content {
   text-align: left;
   line-height: 1.65;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-family: 'Outfit', sans-serif;
 }
 
 .faq-intro {
   margin-bottom: 40px;
   padding: 1.25rem 1.5rem;
-  background: hsl(210 40% 98%);
+  background: var(--theme-surface-soft, hsl(210 40% 98%));
   border-radius: 0;
-  border-left: 3px solid hsl(38 92% 50%);
-  color: hsl(215.4 16.3% 46.9%);
+  border-left: 3px solid var(--theme-border, hsl(38 92% 50%));
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-style: italic;
   text-align: left;
   font-size: 0.9375rem;
@@ -103,7 +103,7 @@
 .faq-section {
   margin-bottom: 0;
   border: none;
-  border-bottom: 1px solid hsl(214.3 31.8% 91.4%);
+  border-bottom: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
   border-radius: 0;
   background: transparent;
   overflow: hidden;
@@ -130,7 +130,7 @@
 
 .section-header h2 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-size: 1.375rem;
   font-weight: 600;
   margin: 0;
@@ -147,20 +147,20 @@
 .qa {
   margin: 0 0 1.5rem 0;
   padding-left: 1.5rem;
-  border-left: 2px solid hsl(214.3 31.8% 91.4%);
+  border-left: 2px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
 }
 
 .qa h3 {
   font-family: 'Outfit', sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   margin: 0 0 0.375rem 0;
 }
 
 .qa p {
   margin: 0 0 0.5rem 0;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-size: 0.9375rem;
   line-height: 1.7;
   font-weight: 400;
@@ -168,13 +168,13 @@
 
 /* Links */
 .faq-content a {
-  color: hsl(221.2 83.2% 53.3%);
+  color: var(--theme-blue-text, hsl(221.2 83.2% 53.3%));
   text-decoration: none;
   font-weight: 500;
 }
 
 .faq-content a:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   text-decoration: none;
 }
 
@@ -185,12 +185,12 @@
   background: transparent;
   border-radius: 0;
   border: none;
-  border-top: 1px solid hsl(214.3 31.8% 91.4%);
+  border-top: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
 }
 
 .contact-section h2 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -200,7 +200,7 @@
 
 .contact-section p {
   margin-bottom: 1rem;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-size: 0.9375rem;
 }
 
@@ -214,7 +214,7 @@
   margin-bottom: 0.5rem;
   font-size: 0.9375rem;
   padding-left: 1rem;
-  border-left: 2px solid hsl(38 92% 50%);
+  border-left: 2px solid var(--theme-border, hsl(38 92% 50%));
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
@@ -225,31 +225,31 @@
   background: transparent;
   border-radius: 0;
   text-align: left;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   border: none;
-  border-top: 1px solid hsl(214.3 31.8% 91.4%);
+  border-top: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
 }
 
 .faq-footer p {
   margin: 0 0 1rem 0;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-size: 0.9375rem;
 }
 
 .faq-footer a,
 .faq-footer a:visited {
-  color: hsl(221.2 83.2% 53.3%);
+  color: var(--theme-blue-text, hsl(221.2 83.2% 53.3%));
   text-decoration: none;
   font-weight: 500;
 }
 
 .faq-footer a:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   text-decoration: none;
 }
 
 .back-link-bottom {
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   text-decoration: none;
   font-weight: 500;
   font-size: 0.8125rem;
@@ -262,7 +262,7 @@
 }
 
 .back-link-bottom:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   transform: none;
 }
 

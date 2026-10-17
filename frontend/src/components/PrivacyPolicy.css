@@ -3,7 +3,7 @@
    ========================================================================== */
 .privacy-policy-page {
   min-height: 100vh;
-  background: hsl(0 0% 100%);
+  background: var(--theme-surface, hsl(0 0% 100%));
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -29,7 +29,7 @@
 .privacy-content {
   text-align: left;
   line-height: 1.7;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-family: 'Outfit', sans-serif;
 }
 
@@ -39,12 +39,12 @@
   border-radius: 0;
   margin-bottom: 2rem;
   border-left: none;
-  border-bottom: 1px solid hsl(214.3 31.8% 91.4%);
+  border-bottom: 1px solid var(--theme-border, hsl(214.3 31.8% 91.4%));
 }
 
 .last-updated p {
   margin: 0;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-size: 0.8125rem;
   font-weight: 400;
   letter-spacing: 0.03em;
@@ -56,7 +56,7 @@
 
 .policy-section h2 {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-size: 1.375rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -67,7 +67,7 @@
 
 .policy-section h3 {
   font-family: 'Outfit', sans-serif;
-  color: hsl(222.2 84% 4.9%);
+  color: var(--theme-text, hsl(222.2 84% 4.9%));
   font-size: 1rem;
   font-weight: 600;
   margin: 1.25rem 0 0.75rem 0;
@@ -75,7 +75,7 @@
 
 .policy-section p {
   margin-bottom: 1rem;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-size: 0.9375rem;
   line-height: 1.7;
 }
@@ -88,7 +88,7 @@
 
 .policy-section li {
   margin-bottom: 0.5rem;
-  color: hsl(215.4 16.3% 46.9%);
+  color: var(--theme-muted, hsl(215.4 16.3% 46.9%));
   font-size: 0.9375rem;
   padding-left: 1.25rem;
   position: relative;
@@ -105,14 +105,14 @@
 }
 
 .policy-section a {
-  color: hsl(221.2 83.2% 53.3%);
+  color: var(--theme-blue-text, hsl(221.2 83.2% 53.3%));
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .policy-section a:hover {
-  color: hsl(38 92% 50%);
+  color: var(--theme-amber-text, hsl(38 92% 50%));
   text-decoration: none;
 }
 

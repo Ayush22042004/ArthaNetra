@@ -1,4 +1,4 @@
-import ReactECharts from 'echarts-for-react'
+import ReactECharts from '../../../common/ThemedEChart'
 import { memo } from 'react'
 import { useResponsive } from '../../../../hooks/useMediaQuery'
 import {
@@ -49,7 +49,7 @@ const ComparisonBarChart = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#666',
+            color: "var(--theme-muted, #666)",
             fontSize: '16px',
           }}
         >
