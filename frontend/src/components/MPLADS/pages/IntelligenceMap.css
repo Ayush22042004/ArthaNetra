@@ -952,7 +952,7 @@
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
 }
 
-.map-actions button {
+.map-actions :is(button, .map-action-link) {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -968,9 +968,12 @@
   font-size: 1.05rem;
   font-weight: 700;
   white-space: nowrap;
+  text-decoration: none;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
-.map-actions button span {
+.map-actions :is(button, .map-action-link) span {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -979,7 +982,7 @@
   white-space: nowrap;
 }
 
-.map-actions button::after {
+.map-actions :is(button, .map-action-link)::after {
   content: attr(data-label);
   position: absolute;
   left: calc(100% + 10px);
@@ -1000,13 +1003,13 @@
   transition: opacity 140ms ease, transform 140ms ease;
 }
 
-.map-actions button:hover::after,
-.map-actions button:focus-visible::after {
+.map-actions :is(button, .map-action-link):hover::after,
+.map-actions :is(button, .map-action-link):focus-visible::after {
   opacity: 1;
   transform: translate(2px, -50%);
 }
 
-.map-actions button:hover {
+.map-actions :is(button, .map-action-link):hover {
   border-color: var(--theme-border, #14b8a6);
   color: var(--theme-teal-text, #0f766e);
   transform: translateY(-1px);
@@ -1080,7 +1083,7 @@
     width: 100%;
   }
 
-  .map-actions button {
+  .map-actions :is(button, .map-action-link) {
     width: auto;
     height: auto;
     justify-content: flex-start;
@@ -1088,15 +1091,17 @@
     padding: 10px 14px;
   }
 
-  .map-actions button span {
+  .map-actions :is(button, .map-action-link) span {
     position: static;
     width: auto;
     height: auto;
     overflow: visible;
     clip: auto;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
-  .map-actions button::after {
+  .map-actions :is(button, .map-action-link)::after {
     display: none;
   }
 
@@ -1211,7 +1216,7 @@
     grid-template-columns: 1fr 1fr;
   }
 
-  .map-actions button {
+  .map-actions :is(button, .map-action-link) {
     justify-content: center;
     padding: 10px 8px;
   }

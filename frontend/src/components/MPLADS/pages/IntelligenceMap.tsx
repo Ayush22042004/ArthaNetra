@@ -8,6 +8,7 @@ import {
   FiArrowUpRight,
   FiCheckCircle,
   FiCloud,
+  FiFileText,
   FiMap,
   FiMaximize2,
   FiNavigation,
@@ -1187,7 +1188,14 @@ const IntelligenceMap = () => {
               <FiAlertTriangle /> <span>{selectedIsEscalated ? 'Escalated' : 'Escalate'}</span>
             </button>
           )}
-          <Link to={selectedCase ? `/mplads/investigations/${selectedCase.caseId}` : '/mplads/investigations'}>Investigation cases</Link>
+          <Link
+            className="map-action-link"
+            to={selectedCase ? `/mplads/investigations/${selectedCase.caseId}` : '/mplads/investigations'}
+            data-label="Investigation cases"
+            aria-label="Investigation cases"
+          >
+            <FiFileText aria-hidden="true" /> <span>Investigation cases</span>
+          </Link>
           {reviewError && <p role="alert">{reviewError}</p>}
         </div>
 
